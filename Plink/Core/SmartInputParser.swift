@@ -60,9 +60,6 @@ enum SmartInputParser {
         @Guide(description: "Any additional context, details or notes not captured in the title. Empty string if none.")
         var description: String
 
-        @Guide(description: "Due date as ISO-8601 date string (yyyy-MM-dd). Use null if no date is mentioned.")
-        var dueDateISO: String?
-
         @Guide(description: "Priority level. Must be one of: none, low, medium, high.")
         var priority: String
     }
@@ -73,22 +70,19 @@ enum SmartInputParser {
         guard model.isAvailable else { return nil }
 
         let session = LanguageModelSession()
-        let today = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: Date()))
 
         let prompt = """
-        Today is \(today). Parse the following task description and extract structured information.
+        Parse the following task input and extract a short title, optional description, and priority. \
+        Keep all text in the same language as the input — do not translate.
         Input: \(input)
         """
 
         do {
             let response = try await session.respond(to: prompt, generating: LLMTaskResult.self)
             let result = response.content
-            var dueDate: Date? = nil
-            if let iso = result.dueDateISO {
-                let fmt = DateFormatter()
-                fmt.dateFormat = "yyyy-MM-dd"
-                dueDate = fmt.date(from: iso)
-            }
+            // Use deterministic NLTagger for date extraction — LLMs are unreliable for date arithmetic
+            var textForDate = input
+            let dueDate = extractDate(from: &textForDate)
             let priority: Priority = {
                 switch result.priority.lowercased() {
                 case "high":   return .high
@@ -118,7 +112,10 @@ enum SmartInputParser {
     // MARK: – Title / Description split
 
     private static func splitTitleAndDesc(_ text: String) -> (String, String) {
-        let separators = [" - ", " – ", " — ", ", because ", " because ", " so that ", " since ", ". "]
+        let separators = [" - ", " – ", " — ",
+                          ", because ", " because ", " so that ", " since ",
+                          ", weil ", " weil ", ", damit ", " damit ", ", da ", " denn ",
+                          ". "]
         for sep in separators {
             if let range = text.range(of: sep, options: .caseInsensitive) {
                 let candidate = String(text[..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
@@ -177,15 +174,46 @@ enum SmartInputParser {
         let now = Date()
         let lower = text.lowercased()
 
-        let relativePattern = #"(?:in\s+)?(\d+|one|two|three|four|five|six|seven|eight|nine|ten|a)\s+(day|days|week|weeks|month|months)(?:\s+from\s+now)?"#
+        // ── Explicit named days (highest priority, most unambiguous) ──
+        let namedDays: [(pattern: String, offset: Int)] = [
+            (#"(?<!\w)(übermorgen|day after tomorrow)(?!\w)"#, 2),
+            (#"(?<!\w)(morgen|tomorrow)(?!\w)"#,               1),
+            (#"(?<!\w)(heute|today)(?!\w)"#,                   0),
+        ]
+        for (pattern, offset) in namedDays {
+            if let match = firstMatch(pattern, in: lower), let range = Range(match.range, in: lower) {
+                let date = cal.date(byAdding: .day, value: offset, to: now)!
+                text.removeSubrange(range)
+                // clean up stray comma/space left behind
+                let trimmed = text.trimmingCharacters(in: .init(charactersIn: ", ").union(.whitespaces))
+                text = trimmed
+                return cal.startOfDay(for: date)
+            }
+        }
+
+        // ── "nächste Woche" / "next week" / "nächsten Monat" / "next month" ──
+        let nextPeriodPatterns: [(String, DateComponents)] = [
+            (#"(?<!\w)(nächste[nr]?\s+woche|next\s+week)(?!\w)"#,  DateComponents(day: 7)),
+            (#"(?<!\w)(nächsten?\s+monat|next\s+month)(?!\w)"#,    DateComponents(month: 1)),
+        ]
+        for (pattern, comps) in nextPeriodPatterns {
+            if let match = firstMatch(pattern, in: lower), let range = Range(match.range, in: lower) {
+                if let date = cal.date(byAdding: comps, to: now) {
+                    text.removeSubrange(range)
+                    return cal.startOfDay(for: date)
+                }
+            }
+        }
+
+        let relativePattern = #"(?:in\s+)?(\d+|one|two|three|four|five|six|seven|eight|nine|ten|a|einer?|zwei|drei|vier|sechs|sieben|acht|neun|zehn|fuenf|funf)\s+(days?|tag|tage|tagen|weeks?|woche|wochen|months?|monat|monate|monaten)(?:\s+from\s+now)?"#
         if let match = firstMatch(relativePattern, in: lower), let range = Range(match.range, in: lower) {
             let numberStr = groupString(match, group: 1, in: lower) ?? ""
             let unit      = groupString(match, group: 2, in: lower) ?? ""
             let n = wordToInt(numberStr) ?? Int(numberStr) ?? 1
             var comps = DateComponents()
-            if unit.hasPrefix("day")   { comps.day   = n }
-            if unit.hasPrefix("week")  { comps.day   = n * 7 }
-            if unit.hasPrefix("month") { comps.month = n }
+            if unit.hasPrefix("day") || unit.hasPrefix("tag")   { comps.day   = n }
+            if unit.hasPrefix("week") || unit.hasPrefix("woch") { comps.day   = n * 7 }
+            if unit.hasPrefix("month") || unit.hasPrefix("mona") { comps.month = n }
             if let date = cal.date(byAdding: comps, to: now) {
                 text.removeSubrange(range)
                 return cal.startOfDay(for: date)
@@ -241,7 +269,19 @@ enum SmartInputParser {
         guard let match = detector.firstMatch(in: text, range: nsRange),
               let date = match.date,
               let matchRange = Range(match.range, in: text) else { return nil }
+
+        // Reject matches that are too short — a single number like "3" or "03"
+        // is almost certainly not an intended date (causes the "April 03" bug).
+        // A real date string needs at least 5 characters (e.g. "15.04" or "Apr 5").
+        let matchedText = String(text[matchRange])
+        guard matchedText.count >= 5 else { return nil }
+
+        // Reject dates in the past — if the detector guessed wrong the result
+        // is always a past date (e.g. yesterday). Only future dates or today are valid.
         let dayStart = Calendar.current.startOfDay(for: date)
+        let today    = Calendar.current.startOfDay(for: Date())
+        guard dayStart >= today else { return nil }
+
         text.removeSubrange(matchRange)
         return dayStart
     }
@@ -291,7 +331,7 @@ enum SmartInputParser {
 
     private static func wordToInt(_ word: String) -> Int? {
         ["a":1,"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10,
-         "ein":1,"zwei":2,"drei":3,"vier":4,"fünf":5,"sechs":6,"sieben":7,"acht":8,"neun":9,"zehn":10][word.lowercased()]
+         "ein":1,"einer":1,"zwei":2,"drei":3,"vier":4,"fuenf":5,"funf":5,"sechs":6,"sieben":7,"acht":8,"neun":9,"zehn":10][word.lowercased()]
     }
 
     private static func firstMatch(_ pattern: String, in text: String) -> NSTextCheckingResult? {

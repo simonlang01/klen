@@ -7,17 +7,17 @@
         <language>en</language>
 
         <item>
-            <title>Plink 1.8</title>
-            <pubDate>Sat, 04 Apr 2026 11:33:26 +0000</pubDate>
-            <sparkle:version>9</sparkle:version>
-            <sparkle:shortVersionString>1.8</sparkle:shortVersionString>
+            <title>Plink 1.9</title>
+            <pubDate>Sat, 04 Apr 2026 12:13:45 +0000</pubDate>
+            <sparkle:version>10</sparkle:version>
+            <sparkle:shortVersionString>1.9</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:releaseNotes>Bug fixes and stability improvements.</sparkle:releaseNotes>
             <enclosure
-                url="https://github.com/simonlang01/plink/releases/download/v1.8/Plink-1.8.dmg"
-                length="2730604"
+                url="https://github.com/simonlang01/plink/releases/download/v1.9/Plink-1.9.dmg"
+                length="2733017"
                 type="application/octet-stream"
-                sparkle:edSignature="ST6Ys64nx426xWIlqteKo85RsJZMKYrXUOTKWaRtGzuMNtALCER5J+bnYK8Fz64CEf9aEfLaUrrV93QVEMiADg=="
+                sparkle:edSignature="YChQcdZf8Xg46L1nFzlzd5lhhZHkOkZ49Ifb13atrla90pWZZC1NecUQWYDKIXwfPpNgNL607N0yNvp8FByaDg=="
             />
         </item>
 
