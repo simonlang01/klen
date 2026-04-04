@@ -8,16 +8,16 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralTab()
-                .tabItem { Label("General", systemImage: "paintbrush") }
+                .tabItem { Label(LocalizedStringKey("settings.tab.general"), systemImage: "paintbrush") }
 
             SmartInputTab()
-                .tabItem { Label("Smart Input", systemImage: "sparkles") }
+                .tabItem { Label(LocalizedStringKey("settings.tab.smartInput"), systemImage: "sparkles") }
 
             ShortcutTab()
-                .tabItem { Label("Shortcut", systemImage: "keyboard") }
+                .tabItem { Label(LocalizedStringKey("settings.tab.shortcut"), systemImage: "keyboard") }
 
             AdvancedTab()
-                .tabItem { Label("Advanced", systemImage: "gearshape") }
+                .tabItem { Label(LocalizedStringKey("settings.tab.advanced"), systemImage: "gearshape") }
         }
         .frame(width: 460)
     }

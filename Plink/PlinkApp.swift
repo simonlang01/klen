@@ -43,7 +43,7 @@ struct PlinkApp: App {
         #if !DEBUG
         .commands {
             CommandGroup(after: .appInfo) {
-                Button("Check for Updates…") {
+                Button(LocalizedStringKey("app.checkForUpdates")) {
                     updaterController.checkForUpdates(nil)
                 }
             }

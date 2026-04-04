@@ -151,26 +151,25 @@ struct SidebarView: View {
         .frame(minWidth: 180, maxWidth: 220)
         .background(.background)
         .confirmationDialog(
-            groupPendingDelete.map { "Delete \"\($0.name)\"?" } ?? "",
+            groupPendingDelete.map { String(format: NSLocalizedString("group.delete.confirm.title", comment: ""), $0.name) } ?? "",
             isPresented: Binding(get: { groupPendingDelete != nil }, set: { if !$0 { groupPendingDelete = nil } }),
             titleVisibility: .visible
         ) {
             if let group = groupPendingDelete {
                 let taskCount = allItems.filter { $0.group?.id == group.id && !$0.isDeleted }.count
-                Button("Delete Group and All Tasks (\(taskCount))", role: .destructive) {
+                Button(String(format: NSLocalizedString("group.delete.withTasks", comment: ""), taskCount), role: .destructive) {
                     deleteGroup(group, moveTasks: false)
                 }
-                Button("Delete Group, Keep Tasks") {
+                Button(LocalizedStringKey("group.delete.keepTasks")) {
                     deleteGroup(group, moveTasks: true)
                 }
-                Button("Cancel", role: .cancel) { groupPendingDelete = nil }
+                Button(LocalizedStringKey("action.cancel"), role: .cancel) { groupPendingDelete = nil }
             }
         } message: {
             if let group = groupPendingDelete {
                 let taskCount = allItems.filter { $0.group?.id == group.id && !$0.isDeleted }.count
-                Text("This will permanently delete the group \"\(group.name)\"" +
-                     (taskCount > 0 ? " and affects \(taskCount) task\(taskCount == 1 ? "" : "s")." : ".") +
-                     " This action cannot be undone.")
+                let taskSuffix = taskCount > 0 ? String(format: NSLocalizedString("group.delete.confirm.tasks", comment: ""), taskCount) : ""
+                Text(String(format: NSLocalizedString("group.delete.confirm.message", comment: ""), group.name, taskSuffix))
             }
         }
     }

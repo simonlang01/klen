@@ -23,7 +23,7 @@ struct TrashView: View {
                                     TrashRowView(item: item, onRestore: { restore(item) }, onDelete: { permanentlyDelete(item) })
                                 }
                             } header: {
-                                TrashSectionHeader(title: "Deleted", icon: "trash", count: deleted.count) {
+                                TrashSectionHeader(title: NSLocalizedString("trash.section.deleted", comment: ""), icon: "trash", count: deleted.count) {
                                     deleted.forEach { permanentlyDelete($0) }
                                 }
                             }
@@ -35,7 +35,7 @@ struct TrashView: View {
                                     TrashRowView(item: item, onRestore: { restore(item) }, onDelete: { permanentlyDelete(item) })
                                 }
                             } header: {
-                                TrashSectionHeader(title: "Completed", icon: "checkmark.circle", count: completed.count) {
+                                TrashSectionHeader(title: NSLocalizedString("trash.section.completed", comment: ""), icon: "checkmark.circle", count: completed.count) {
                                     completed.forEach { permanentlyDelete($0) }
                                 }
                             }
@@ -52,7 +52,7 @@ struct TrashView: View {
                     Button(role: .destructive) {
                         (deleted + completed).forEach { permanentlyDelete($0) }
                     } label: {
-                        Label("Empty Trash", systemImage: "trash")
+                        Label(LocalizedStringKey("trash.emptyAction"), systemImage: "trash")
                             .font(.system(size: 12))
                     }
                     .help(LocalizedStringKey("trash.emptyHelp"))
@@ -132,7 +132,7 @@ private struct TrashSectionHeader: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.tertiary)
             Spacer()
-            Button("Clear", action: onClearSection)
+            Button(LocalizedStringKey("trash.clear"), action: onClearSection)
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .buttonStyle(.plain)
@@ -181,7 +181,7 @@ private struct TrashRowView: View {
                     Button {
                         onRestore()
                     } label: {
-                        Label("Restore", systemImage: "arrow.uturn.backward")
+                        Label(LocalizedStringKey("action.restore"), systemImage: "arrow.uturn.backward")
                             .font(.system(size: 11))
                             .foregroundStyle(accent)
                     }
@@ -190,7 +190,7 @@ private struct TrashRowView: View {
                     Button {
                         onDelete()
                     } label: {
-                        Label("Delete", systemImage: "xmark")
+                        Label(LocalizedStringKey("action.delete"), systemImage: "xmark")
                             .font(.system(size: 11))
                             .foregroundStyle(.red.opacity(0.7))
                     }

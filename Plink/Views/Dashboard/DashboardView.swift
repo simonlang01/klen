@@ -138,7 +138,7 @@ struct DashboardView: View {
             } label: {
                 Image(systemName: "questionmark.circle")
             }
-            .help("Help")
+            .help(LocalizedStringKey("help.title"))
         }
     }
 

@@ -378,7 +378,7 @@ struct ExtrasAttachmentsRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("Attachments", systemImage: "paperclip")
+                Label(LocalizedStringKey("extras.attachments"), systemImage: "paperclip")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -419,7 +419,7 @@ struct ExtrasLinksRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("Links", systemImage: "link")
+                Label(LocalizedStringKey("extras.links"), systemImage: "link")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -478,7 +478,7 @@ struct ExtrasLocationRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 0) {
-                Label("Location", systemImage: "mappin")
+                Label(LocalizedStringKey("extras.location"), systemImage: "mappin")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -493,10 +493,10 @@ struct ExtrasLocationRow: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help("Open in Maps")
+                    .help(LocalizedStringKey("extras.location.openMaps"))
                 }
             }
-            TextField("Address", text: $address, axis: .vertical)
+            TextField(LocalizedStringKey("extras.location.placeholder"), text: $address, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .lineLimit(1...3)
@@ -537,7 +537,7 @@ struct ExtrasItemRow: View {
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
-                    .help("Open")
+                    .help(LocalizedStringKey("extras.open"))
                 }
                 Button(action: onRemove) {
                     Image(systemName: "xmark")
@@ -545,7 +545,7 @@ struct ExtrasItemRow: View {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                .help("Remove")
+                .help(LocalizedStringKey("extras.remove"))
             }
         }
         .padding(.horizontal, 10)
