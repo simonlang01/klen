@@ -7,17 +7,17 @@
         <language>en</language>
 
         <item>
-            <title>Plink 1.5.1</title>
-            <pubDate>Sat, 04 Apr 2026 01:25:39 +0000</pubDate>
-            <sparkle:version>2</sparkle:version>
-            <sparkle:shortVersionString>1.5.1</sparkle:shortVersionString>
+            <title>Plink 1.5.2</title>
+            <pubDate>Sat, 04 Apr 2026 02:28:37 +0000</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.5.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:releaseNotesLink>https://github.com/simonlang01/plink/releases/tag/v1.5.1</sparkle:releaseNotesLink>
+            <sparkle:releaseNotesLink>https://github.com/simonlang01/plink/releases/tag/v1.5.2</sparkle:releaseNotesLink>
             <enclosure
-                url="https://github.com/simonlang01/plink/releases/download/v1.5.1/Plink-1.5.1.dmg"
-                length="2438887"
+                url="https://github.com/simonlang01/plink/releases/download/v1.5.2/Plink-1.5.2.dmg"
+                length="2438919"
                 type="application/octet-stream"
-                sparkle:edSignature="mOu+Sc9koo1gLoSH98NQn/wVA8H02L7VK/TwNoRhgc0g5fzMkIXUh0+cdH2Ji93cegfkPHdy9uepsnH9EShzCA=="
+                sparkle:edSignature="4s7VYcaRjD/wVHBs5nJC179E5MC3NdUsacU2KGuwxUCeDpMFvRIhCiCiChm3ueXujQ8pG5Nb2Tv0gGjDVwn7Bg=="
             />
         </item>
 
