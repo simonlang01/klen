@@ -32,94 +32,58 @@ A minimalist, ultra-fast macOS ToDo app focused on quick capture via a global ke
 
 ---
 
-## Project Structure
+## Branch Structure
 
 ```
-Plink/
-├── Core/               # AppState, PersistenceController, LanguageManager, models
-├── Views/              # All SwiftUI views
-│   ├── Dashboard/
-│   ├── QuickAdd/
-│   ├── Onboarding/
-│   ├── Help/
-│   └── Settings/
-dist/
-├── appcast.xml         # Sparkle update feed (also at repo root)
-├── Plink-x.x.x.dmg    # Built DMGs (not committed, see .gitignore)
-release.sh              # Release automation script
-project.yml             # XcodeGen project definition
+main   ← production only. Sparkle update feed reads this branch.
+dev    ← all development happens here
 ```
+
+Never develop directly on `main`. All code changes go to `dev` first.
 
 ---
 
-## Environments
+## Development
 
-| | Dev | Production |
-|---|---|---|
-| Bundle ID | `com.simonlang.Plink.dev` | `com.simonlang.Plink` |
-| Display name | Plink Dev | Plink |
-| Data location | `~/Library/Application Support/Plink-Dev/` | `~/Library/Application Support/Plink/` |
-| Sparkle | Disabled | Enabled |
+Open the project and build the **Debug** scheme. This runs as **Plink Dev** with a separate data store — completely isolated from the production app.
 
-Build with **Debug** scheme for development, **Release** scheme for distribution.
+```bash
+# Regenerate .xcodeproj after changing project.yml:
+xcodegen generate
+```
 
 ---
 
 ## Releasing a New Version
 
-1. Develop and test in the **Dev** environment.
+When `dev` is stable and ready to ship, run from the repo root:
 
-2. Run the release script:
-   ```bash
-   ./release.sh <version> <build>
-   # Example:
-   ./release.sh 1.6 3
-   ```
-   This will:
-   - Bump `CFBundleShortVersionString` and `CFBundleVersion` in `Info.plist`
-   - Build the Release configuration
-   - Create `dist/Plink-<version>.dmg`
-   - Sign the DMG with the Sparkle EdDSA key
-   - Update `appcast.xml` (root + `dist/`)
+```bash
+./ship.sh <version> <build>
+# Example:
+./ship.sh 1.6 3
+```
 
-3. Commit and push:
-   ```bash
-   git add appcast.xml dist/appcast.xml Plink/Info.plist
-   git commit -m "Release <version>"
-   git push
-   ```
+This will:
+1. Verify you're on `dev` with no uncommitted changes
+2. Merge `dev` → `main`
+3. Build the Release configuration
+4. Create and sign the DMG
+5. Update `appcast.xml`
+6. Push everything to GitHub
+7. Switch back to `dev`
 
-4. Create a GitHub Release:
-   - Go to github.com/simonlang01/plink → Releases → Draft a new release
-   - Tag: `v<version>` (e.g. `v1.6`)
-   - Upload `dist/Plink-<version>.dmg`
-   - Publish
-
-Existing users will see the update prompt on next launch.
+Then follow the printed instructions to create the GitHub Release and upload the DMG.
 
 ### Build number convention
+Always increment the build number with each release. Sparkle uses it (not the version string) to detect updates.
+
 | Version | Build |
 |---|---|
 | 1.5 | 1 |
 | 1.5.1 | 2 |
 | 1.6 | 3 |
-| … | … |
-
-Always increment the build number with each release — Sparkle uses it (not the version string) to detect updates.
-
----
-
-## Sparkle Signing Key
-
-The EdDSA private key used to sign DMGs is stored in **macOS Keychain** under `https://sparkle-project.org`. It is never committed to this repo.
-
-**To back it up:**
-```bash
-./build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x ~/sparkle_private_key_backup.txt
-```
-Store the backup in a password manager or encrypted location. Without this key, you cannot sign future updates.
-
-The corresponding **public key** is in `Plink/Info.plist` under `SUPublicEDKey` — this is safe to be public.
+| … | +1 |
 
 ---
 
