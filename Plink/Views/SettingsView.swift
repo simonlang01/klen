@@ -246,11 +246,58 @@ private struct AdvancedTab: View {
     @Query private var allItems: [TodoItem]
     @Query private var allGroups: [TodoGroup]
     @State private var showResetConfirm = false
+    @State private var isBusy = false
     @Environment(\.appAccent) private var accent
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+
+                // Backup section
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "externaldrive")
+                            .font(.system(size: 16))
+                            .foregroundStyle(accent)
+                        Text(LocalizedStringKey("settings.backup.title"))
+                            .font(.system(size: 15, weight: .semibold))
+                    }
+                    Text(LocalizedStringKey("settings.backup.desc"))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 10) {
+                        Button {
+                            isBusy = true
+                            Task { await BackupManager.shared.export(context: ctx); isBusy = false }
+                        } label: {
+                            Label(LocalizedStringKey("settings.backup.export"), systemImage: "square.and.arrow.up")
+                                .font(.system(size: 12))
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(accent)
+                        .controlSize(.small)
+                        .disabled(isBusy || (allItems.isEmpty && allGroups.isEmpty))
+
+                        Button {
+                            isBusy = true
+                            Task { await BackupManager.shared.import(context: ctx); isBusy = false }
+                        } label: {
+                            Label(LocalizedStringKey("settings.backup.import"), systemImage: "square.and.arrow.down")
+                                .font(.system(size: 12))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        .disabled(isBusy)
+
+                        if isBusy { ProgressView().controlSize(.small) }
+                    }
+                }
+                .padding(16)
+                .background(accent.opacity(0.04), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(accent.opacity(0.12), lineWidth: 1))
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
 
                 // Reset section
                 VStack(alignment: .leading, spacing: 10) {
@@ -293,12 +340,11 @@ private struct AdvancedTab: View {
                 .background(Color.red.opacity(0.04), in: RoundedRectangle(cornerRadius: 12))
                 .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Color.red.opacity(0.1), lineWidth: 1))
                 .padding(.horizontal, 20)
-                .padding(.top, 20)
 
                 Spacer(minLength: 20)
             }
         }
-        .frame(minHeight: 260)
+        .frame(minHeight: 360)
         .confirmationDialog(
             LocalizedStringKey("settings.reset.confirm.title"),
             isPresented: $showResetConfirm,

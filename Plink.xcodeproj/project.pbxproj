@@ -37,6 +37,7 @@
 		E64ABFD807AB42A13D470864 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F0ABF3C045182A4CB2A48E /* SettingsView.swift */; };
 		F227AEA972E653280D73A4DC /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0AA15442F77B9C82ECC05 /* DashboardViewModel.swift */; };
 		F3AD3175BE3510E25A67169B /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */; };
+		B2C3D4E5F6A7B8C9D0E1F2A3 /* BackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */; };
 		F8FFFB8526FECCEEB1CB59FA /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8FB49D0FFEEA5F8588E6B0 /* StatusBarController.swift */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +57,7 @@
 		6BDD4CAC56CC42B047D107CF /* QuickAddPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddPanelController.swift; sourceTree = "<group>"; };
 		6E58CB1E6F135493B1D0A607 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManager.swift; sourceTree = "<group>"; };
 		6F9B9C8851166A2167379856 /* SmartInputParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartInputParser.swift; sourceTree = "<group>"; };
 		70616E3B0C1EE5243D584032 /* Plink-Dev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Plink-Dev.entitlements"; sourceTree = "<group>"; };
 		7788DFC56F29BD9E3E6A5310 /* TodoGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoGroup.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				12258557F23E4D54AF4CAC2A /* LanguageManager.swift */,
 				9DB8E2140BAD62FE585F917C /* Localizable.xcstrings */,
 				6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */,
 				6BDD4CAC56CC42B047D107CF /* QuickAddPanelController.swift */,
 				1263C98D51BA453E7B525563 /* ShortcutNames.swift */,
 				6F9B9C8851166A2167379856 /* SmartInputParser.swift */,
@@ -314,6 +317,7 @@
 				041B589C0A86D00BEE0DF7F4 /* MiniCalendarPicker.swift in Sources */,
 				B4EBA746BDE7B058DF48CDA1 /* OnboardingView.swift in Sources */,
 				F3AD3175BE3510E25A67169B /* PersistenceController.swift in Sources */,
+				B2C3D4E5F6A7B8C9D0E1F2A3 /* BackupManager.swift in Sources */,
 				AC3D079B5F11E349D3164C30 /* PlinkApp.swift in Sources */,
 				E44643CD8F13EC352B548C87 /* QuickAddPanelController.swift in Sources */,
 				866F640F2F2932E2DB7C8548 /* QuickAddView.swift in Sources */,
