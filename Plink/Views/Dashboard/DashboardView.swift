@@ -10,6 +10,7 @@ struct DashboardView: View {
     @State private var showAddSheet = false
     @State private var showTrash = false
     @State private var showHelp = false
+    @State private var selectedItem: TodoItem?
     private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     @State private var tick = false
     @Environment(\.appAccent) private var accent
@@ -17,13 +18,28 @@ struct DashboardView: View {
     var body: some View {
         NavigationSplitView {
             SidebarView(groupFilter: $vm.groupFilter, showTrash: $showTrash)
-                .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
+                .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
         } detail: {
-            if showTrash { TrashView() } else { taskList }
+            HStack(spacing: 0) {
+                // ── Task list ──────────────────────────────────────
+                Group {
+                    if showTrash { TrashView() } else { taskList }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                // ── Inline detail panel ────────────────────────────
+                if let item = selectedItem {
+                    Divider()
+                    TaskDetailView(item: item, onClose: { selectedItem = nil })
+                        .frame(width: 420)
+                        .id(item.persistentModelID)
+                }
+            }
         }
         .searchable(text: $vm.searchQuery, placement: .toolbar, prompt: LocalizedStringKey("search.placeholder"))
         .toolbar { toolbarContent }
         .navigationTitle("")
+        .frame(minWidth: 720, minHeight: 500)
         .sheet(isPresented: $showHelp) {
             HelpView()
                 .environment(\.appAccent, appState.accentOption.color)
@@ -54,8 +70,10 @@ struct DashboardView: View {
                             ForEach(items) { item in
                                 TaskRowView(
                                     item: item,
+                                    isSelected: selectedItem?.persistentModelID == item.persistentModelID,
                                     onComplete: { complete(item) },
-                                    onDelete: { softDelete(item) }
+                                    onDelete: { softDelete(item) },
+                                    onSelect: { selectedItem = (selectedItem?.persistentModelID == item.persistentModelID) ? nil : item }
                                 )
                             }
                         } header: {
@@ -73,19 +91,19 @@ struct DashboardView: View {
     // MARK: Empty state
 
     private var emptyState: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 40, weight: .ultraLight))
+                .font(.system(size: 44, weight: .ultraLight))
                 .foregroundStyle(accent.opacity(0.4))
             Text("dashboard.empty.title")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 16, weight: .medium))
                 .foregroundStyle(.secondary)
             if allItems.isEmpty {
                 Button {
                     showAddSheet = true
                 } label: {
                     Label(LocalizedStringKey("dashboard.empty.cta"), systemImage: "plus")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 14, weight: .medium))
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(accent)
@@ -93,7 +111,7 @@ struct DashboardView: View {
                 .padding(.top, 6)
             } else {
                 Text(String(format: NSLocalizedString("dashboard.empty.hint", comment: ""), KeyboardShortcuts.getShortcut(for: .quickAdd)?.description ?? "⌥Space"))
-                    .font(.system(size: 12))
+                    .font(.system(size: 13))
                     .foregroundStyle(.tertiary)
             }
         }
@@ -137,6 +155,9 @@ struct DashboardView: View {
         withAnimation(.spring(duration: 0.2)) {
             item.isDeleted = true
             item.deletedAt = Date()
+            if selectedItem?.persistentModelID == item.persistentModelID {
+                selectedItem = nil
+            }
         }
     }
 }

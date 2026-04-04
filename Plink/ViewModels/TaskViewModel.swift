@@ -17,14 +17,22 @@ final class TaskViewModel: ObservableObject {
 
     func complete(_ item: TodoItem) {
         item.isCompleted = true
+        if item.completedAt == nil { item.completedAt = Date() }
+    }
+
+    func uncomplete(_ item: TodoItem) {
+        item.isCompleted = false
+        item.completedAt = nil
     }
 
     func softDelete(_ item: TodoItem) {
         item.isDeleted = true
+        item.deletedAt = Date()
     }
 
     func restore(_ item: TodoItem) {
         item.isDeleted = false
+        item.deletedAt = nil
     }
 
     func permanentlyDelete(_ item: TodoItem) {

@@ -22,7 +22,7 @@ final class PersistenceController {
     }
 
     private init() {
-        let schema = Schema([TodoItem.self, TodoGroup.self])
+        let schema = Schema([TodoItem.self, TodoGroup.self, TaskAttachment.self])
         let storeURL = Self.dataDirectory.appending(path: "plink.sqlite")
         let config = ModelConfiguration(schema: schema, url: storeURL)
         do {
@@ -58,7 +58,7 @@ final class PersistenceController {
 
     /// In-memory container for previews / tests
     static var preview: ModelContainer = {
-        let schema = Schema([TodoItem.self, TodoGroup.self])
+        let schema = Schema([TodoItem.self, TodoGroup.self, TaskAttachment.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try! ModelContainer(for: schema, configurations: [config])
         let ctx = container.mainContext

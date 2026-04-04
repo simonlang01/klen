@@ -154,12 +154,19 @@ struct HelpView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     // Topic header
-                    HStack(spacing: 10) {
+                    HStack(alignment: .top, spacing: 10) {
                         Image(systemName: selectedTopic.icon)
                             .font(.system(size: 22))
                             .foregroundStyle(accent)
                         Text(selectedTopic.title)
                             .font(.system(size: 20, weight: .semibold))
+                        Spacer()
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
                     }
                     .padding(.bottom, 20)
 

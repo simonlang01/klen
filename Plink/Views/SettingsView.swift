@@ -467,9 +467,19 @@ private struct HelpRow: View {
 // MARK: – Restart helper
 
 private func restartApp() {
-    let url = Bundle.main.bundleURL
-    let config = NSWorkspace.OpenConfiguration()
-    config.createsNewApplicationInstance = true
-    NSWorkspace.shared.openApplication(at: url, configuration: config) { _, _ in }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { NSApp.terminate(nil) }
+    // Close all windows (dismisses any open sheets/panels) so terminate is clean.
+    NSApp.windows.forEach { $0.close() }
+
+    // Spawn a shell that waits for this process to exit, then relaunches the app.
+    // This avoids the double-instance problem caused by opening a new instance
+    // before the current one has fully terminated.
+    let pid  = ProcessInfo.processInfo.processIdentifier
+    let path = Bundle.main.bundlePath
+        .replacingOccurrences(of: "'", with: "'\\''") // safe single-quote escaping
+    let task = Process()
+    task.launchPath = "/bin/sh"
+    task.arguments  = ["-c", "while kill -0 \(pid) 2>/dev/null; do sleep 0.05; done; open '\(path)'"]
+    try? task.run()
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { NSApp.terminate(nil) }
 }

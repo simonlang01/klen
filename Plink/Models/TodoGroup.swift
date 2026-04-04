@@ -6,7 +6,7 @@ final class TodoGroup {
     var id: UUID
     var name: String
     var createdAt: Date
-    @Relationship(deleteRule: .nullify, inverse: \TodoItem.group) var items: [TodoItem]
+    @Relationship(deleteRule: .nullify) var items: [TodoItem]
 
     init(name: String) {
         self.id = UUID()
