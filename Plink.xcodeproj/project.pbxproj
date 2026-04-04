@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F6A7B8C9D0E1F2A3B4C5D6E7 /* TimePresetRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */; };
 		76AC9D45C2CA4459A6E63BDA /* DateTimePickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94956C651AE54037A83D5717 /* DateTimePickerRow.swift */; };
+		3A3B877F780E466CB76B9D69 /* RecurrencePickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8743A9C5843CA8B9EB404 /* RecurrencePickerRow.swift */; };
+		9747B6959A723C16D0D8D2A8 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3923706CC1B6CE692B6BEEBB /* MenuBarPopoverView.swift */; };
 		317354FD838746D2913C5818 /* StatsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */; };
 		915508D027604B58880B625B /* ActivityLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADEC09A72D48AAABF78552 /* ActivityLogView.swift */; };
 		041B589C0A86D00BEE0DF7F4 /* MiniCalendarPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0879455978FFD647E25E672D /* MiniCalendarPicker.swift */; };
@@ -29,6 +31,7 @@
 		B4EBA746BDE7B058DF48CDA1 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174D75D391F1F99A4980B43A /* OnboardingView.swift */; };
 		B99E75F103294CC08CDD31B6 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 9EE5ADCF2DAA0A5BF8430931 /* KeyboardShortcuts */; };
 		BC7E81FC645BE6E6AC0653C5 /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB128DB77D1C62ABB46EDD07 /* SectionHeaderView.swift */; };
+		042FE35154BD64AD6F09D5ED /* CelebrationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA28BD083CDE8A2E3DC321FC /* CelebrationOverlay.swift */; };
 		C82794175AA9DE9CB00EC545 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC46B4F613C06171E0350829 /* Theme.swift */; };
 		CE0E572371576BE702783CC3 /* ShortcutNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1263C98D51BA453E7B525563 /* ShortcutNames.swift */; };
 		D50048DAAA37F4E0B6826223 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEDB85A982FF6F16EFCEA5A5 /* Assets.xcassets */; };
@@ -49,6 +52,8 @@
 /* Begin PBXFileReference section */
 		E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePresetRow.swift; sourceTree = "<group>"; };
 		94956C651AE54037A83D5717 /* DateTimePickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimePickerRow.swift; sourceTree = "<group>"; };
+		2BE8743A9C5843CA8B9EB404 /* RecurrencePickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrencePickerRow.swift; sourceTree = "<group>"; };
+		3923706CC1B6CE692B6BEEBB /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		0879455978FFD647E25E672D /* MiniCalendarPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniCalendarPicker.swift; sourceTree = "<group>"; };
 		089956EA6DAC87994CD7DE46 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 		12258557F23E4D54AF4CAC2A /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
@@ -82,6 +87,7 @@
 		D78814E0D77878B402431FCF /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
 		E84E3CEE3E3C1D6F7523493C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EB128DB77D1C62ABB46EDD07 /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
+		FA28BD083CDE8A2E3DC321FC /* CelebrationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationOverlay.swift; sourceTree = "<group>"; };
 		9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsHeaderView.swift; sourceTree = "<group>"; };
 		EEDB85A982FF6F16EFCEA5A5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F1D8B4167CA98D0B5B37E87F /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -111,6 +117,7 @@
 				DFBCD647C211601FF601CE60 /* Onboarding */,
 				6B6097C9BA07A1F47BB111A8 /* QuickAdd */,
 				427FD5318E56C378D15A7F73 /* Shared */,
+				500D4D5CB9B3250A76D488E9 /* MenuBar */,
 				C4272B664F1344D1676CC022 /* Trash */,
 				716A8B4E06EA4E29B8919DD7 /* ActivityLog */,
 			);
@@ -174,8 +181,17 @@
 				0879455978FFD647E25E672D /* MiniCalendarPicker.swift */,
 				E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */,
 				94956C651AE54037A83D5717 /* DateTimePickerRow.swift */,
+				2BE8743A9C5843CA8B9EB404 /* RecurrencePickerRow.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		500D4D5CB9B3250A76D488E9 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				3923706CC1B6CE692B6BEEBB /* MenuBarPopoverView.swift */,
+			);
+			path = MenuBar;
 			sourceTree = "<group>";
 		};
 		6B6097C9BA07A1F47BB111A8 /* QuickAdd */ = {
@@ -238,6 +254,7 @@
 				A4409234FA71DAF9C747A4FA /* SidebarView.swift */,
 				5AF6B5CEC28FD36794E7EEE2 /* TaskDetailView.swift */,
 				2AFA8F4A6FE30E7B1BC85372 /* TaskRowView.swift */,
+							FA28BD083CDE8A2E3DC321FC /* CelebrationOverlay.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -340,6 +357,8 @@
 				041B589C0A86D00BEE0DF7F4 /* MiniCalendarPicker.swift in Sources */,
 				F6A7B8C9D0E1F2A3B4C5D6E7 /* TimePresetRow.swift in Sources */,
 				76AC9D45C2CA4459A6E63BDA /* DateTimePickerRow.swift in Sources */,
+				3A3B877F780E466CB76B9D69 /* RecurrencePickerRow.swift in Sources */,
+				9747B6959A723C16D0D8D2A8 /* MenuBarPopoverView.swift in Sources */,
 				B4EBA746BDE7B058DF48CDA1 /* OnboardingView.swift in Sources */,
 				F3AD3175BE3510E25A67169B /* PersistenceController.swift in Sources */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* BackupManager.swift in Sources */,
@@ -348,6 +367,7 @@
 				E44643CD8F13EC352B548C87 /* QuickAddPanelController.swift in Sources */,
 				866F640F2F2932E2DB7C8548 /* QuickAddView.swift in Sources */,
 				BC7E81FC645BE6E6AC0653C5 /* SectionHeaderView.swift in Sources */,
+				042FE35154BD64AD6F09D5ED /* CelebrationOverlay.swift in Sources */,
 				317354FD838746D2913C5818 /* StatsHeaderView.swift in Sources */,
 				E64ABFD807AB42A13D470864 /* SettingsView.swift in Sources */,
 				CE0E572371576BE702783CC3 /* ShortcutNames.swift in Sources */,

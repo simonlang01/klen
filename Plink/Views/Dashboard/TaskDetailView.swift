@@ -22,6 +22,8 @@ struct TaskDetailView: View {
 
     @State private var hasDueTime: Bool
     @State private var dueTime: Date
+    @State private var recurrenceFrequency: RecurrenceFrequency
+    @State private var recurrenceInterval: Int
 
     @State private var discardChanges = false
     @State private var showFilePicker = false
@@ -39,8 +41,10 @@ struct TaskDetailView: View {
         _links           = State(initialValue: item.links)
         _locationAddress = State(initialValue: item.locationAddress)
         _blockingStatus  = State(initialValue: item.blockingStatus ?? .none)
-        _hasDueTime      = State(initialValue: item.hasDueTime)
-        _dueTime         = State(initialValue: item.dueDate ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date())
+        _hasDueTime           = State(initialValue: item.hasDueTime)
+        _dueTime              = State(initialValue: item.dueDate ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date())
+        _recurrenceFrequency  = State(initialValue: item.recurrence)
+        _recurrenceInterval   = State(initialValue: item.recurrenceInterval)
     }
 
     var body: some View {
@@ -123,6 +127,10 @@ struct TaskDetailView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         // Date + time
                         DateTimePickerRow(date: $dueDate, hasDueTime: $hasDueTime, dueTime: $dueTime)
+
+                        // Recurrence — always visible; disabled until a date is set
+                        RecurrencePickerRow(frequency: $recurrenceFrequency, interval: $recurrenceInterval,
+                                            disabled: dueDate == nil)
 
                         // Blocking status
                         HStack(spacing: 8) {
@@ -240,6 +248,7 @@ struct TaskDetailView: View {
         .onAppear { DispatchQueue.main.async { titleFocused = true } }
         .onExitCommand { discardChanges = true; onClose() }
         .onDisappear { if !discardChanges { save() } }
+        .onChange(of: item.group?.id) { _, _ in selectedGroup = item.group }
         .fileImporter(
             isPresented: $showFilePicker,
             allowedContentTypes: [.item],
@@ -283,9 +292,13 @@ struct TaskDetailView: View {
         } else {
             NotificationManager.shared.cancel(for: item)
         }
-        item.links           = links
-        item.locationAddress = locationAddress
-        item.blockingStatus  = blockingStatus == .none ? nil : blockingStatus
+        item.links              = links
+        item.locationAddress    = locationAddress
+        item.blockingStatus     = blockingStatus == .none ? nil : blockingStatus
+        item.recurrence         = recurrenceFrequency
+        item.recurrenceInterval = recurrenceInterval
+        // Clear recurrence if date was removed
+        if dueDate == nil { item.recurrence = .none }
         for id in removedAttachmentIDs {
             item.attachments.removeAll { $0.id == id }
         }

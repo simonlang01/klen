@@ -5,74 +5,76 @@ struct StatsHeaderView: View {
     @Environment(\.appAccent) private var accent
 
     var body: some View {
-        HStack(spacing: 0) {
-            StatCell(
-                value: stats.openCount,
-                label: NSLocalizedString("stats.open", comment: ""),
-                icon: "tray.full",
-                color: accent
-            )
-            divider
-            StatCell(
-                value: stats.dueToday,
-                label: NSLocalizedString("stats.dueToday", comment: ""),
-                icon: "sun.max",
-                color: stats.dueToday > 0 ? accent : .secondary
-            )
-            divider
-            StatCell(
-                value: stats.overdueCount,
-                label: NSLocalizedString("stats.overdue", comment: ""),
-                icon: "exclamationmark.circle",
-                color: stats.overdueCount > 0 ? .red.opacity(0.75) : .secondary
-            )
-            divider
-            StatCell(
-                value: stats.completedThisWeek,
-                label: NSLocalizedString("stats.completedWeek", comment: ""),
-                icon: "checkmark.circle",
-                color: stats.completedThisWeek > 0 ? .green.opacity(0.7) : .secondary
-            )
-            divider
-            StatCell(
-                value: stats.createdThisWeek,
-                label: NSLocalizedString("stats.createdWeek", comment: ""),
-                icon: "plus.circle",
-                color: .secondary
-            )
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(Color.primary.opacity(0.02))
-    }
+        HStack(spacing: 16) {
+            // Overdue — only shown when non-zero, always prominent
+            if stats.overdueCount > 0 {
+                StatPill(
+                    value: stats.overdueCount,
+                    label: NSLocalizedString("stats.overdue", comment: ""),
+                    color: .red.opacity(0.8)
+                )
+            }
 
-    private var divider: some View {
-        Divider().frame(height: 28)
+            // Due today
+            if stats.dueToday > 0 {
+                StatPill(
+                    value: stats.dueToday,
+                    label: NSLocalizedString("stats.dueToday", comment: ""),
+                    color: accent
+                )
+            }
+
+            Spacer()
+
+            // Quiet stats — always visible but visually recessive
+            HStack(spacing: 12) {
+                QuietStat(value: stats.openCount,         label: NSLocalizedString("stats.open", comment: ""))
+                QuietStat(value: stats.completedThisWeek, label: NSLocalizedString("stats.completedWeek.short", comment: ""))
+                QuietStat(value: stats.createdThisWeek,   label: NSLocalizedString("stats.createdWeek.short", comment: ""))
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 9)
+        .background(.background)
     }
 }
 
-private struct StatCell: View {
+// MARK: – Prominent pill (overdue / due today)
+
+private struct StatPill: View {
     let value: Int
     let label: String
-    let icon: String
     let color: Color
 
     var body: some View {
-        HStack(spacing: 7) {
-            Image(systemName: icon)
-                .font(.system(size: 13))
+        HStack(spacing: 5) {
+            Text("\(value)")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(color)
-                .frame(width: 18)
-            VStack(alignment: .leading, spacing: 1) {
-                Text("\(value)")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundStyle(color)
-                Text(label)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-            }
+            Text(label)
+                .font(.system(size: 12))
+                .foregroundStyle(color.opacity(0.85))
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(color.opacity(0.10), in: Capsule())
+    }
+}
+
+// MARK: – Quiet stat (open / done / created)
+
+private struct QuietStat: View {
+    let value: Int
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text("\(value)")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(.secondary)
+            Text(label)
+                .font(.system(size: 12))
+                .foregroundStyle(.tertiary)
+        }
     }
 }

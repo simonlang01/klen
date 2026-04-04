@@ -14,6 +14,7 @@ struct SidebarView: View {
     @State private var groupPendingDelete: TodoGroup? = nil
     @State private var groupPendingRename: TodoGroup? = nil
     @State private var renameText = ""
+    @State private var dropTargetFilter: GroupFilter? = nil
     @FocusState private var fieldFocused: Bool
     @FocusState private var renameFocused: Bool
     @Environment(\.appAccent) private var accent
@@ -47,156 +48,154 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // All Tasks
-            SidebarRow(
-                label: NSLocalizedString("group.allTasks", comment: ""),
-                icon: "tray.full",
-                isSelected: groupFilter == .all && !showTrash && !showActivityLog
-            ) {
-                groupFilter = .all; showTrash = false; showActivityLog = false
+
+            // ── Navigation section ────────────────────────────────
+            VStack(spacing: 1) {
+                SidebarRow(
+                    label: NSLocalizedString("group.allTasks", comment: ""),
+                    icon: "tray.full",
+                    isSelected: groupFilter == .all && !showTrash && !showActivityLog,
+                    isDropTarget: dropTargetFilter == .all
+                ) {
+                    groupFilter = .all; showTrash = false; showActivityLog = false
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    items.forEach { assignTask(uuidString: $0, to: nil) }
+                    return true
+                } isTargeted: { dropTargetFilter = $0 ? .all : nil }
+
+                SidebarRow(
+                    label: NSLocalizedString("group.unassigned", comment: ""),
+                    icon: "tray",
+                    isSelected: groupFilter == .unassigned && !showTrash && !showActivityLog,
+                    openCount: openCount(for: .unassigned),
+                    overdueCount: overdueCount(for: .unassigned),
+                    isDropTarget: dropTargetFilter == .unassigned
+                ) {
+                    groupFilter = .unassigned; showTrash = false; showActivityLog = false
+                }
+                .dropDestination(for: String.self) { items, _ in
+                    items.forEach { assignTask(uuidString: $0, to: nil) }
+                    return true
+                } isTargeted: { dropTargetFilter = $0 ? .unassigned : nil }
             }
+            .padding(.top, 10)
 
-            Divider().padding(.horizontal, 12).padding(.vertical, 6)
-
-            // Unassigned (always visible, not deletable)
-            SidebarRow(
-                label: NSLocalizedString("group.unassigned", comment: ""),
-                icon: "tray",
-                isSelected: groupFilter == .unassigned && !showTrash && !showActivityLog,
-                openCount: openCount(for: .unassigned),
-                overdueCount: overdueCount(for: .unassigned)
-            ) {
-                groupFilter = .unassigned; showTrash = false; showActivityLog = false
-            }
-
+            // ── Groups ────────────────────────────────────────────
             if !groups.isEmpty {
-                Divider().padding(.horizontal, 12).padding(.vertical, 6)
-                ForEach(groups) { group in
-                    if groupPendingRename?.id == group.id {
-                        // Inline rename field
-                        HStack(spacing: 6) {
-                            Image(systemName: "folder")
-                                .font(.system(size: 13))
-                                .foregroundStyle(accent)
-                                .frame(width: 20)
-                            TextField("", text: $renameText)
-                                .textFieldStyle(.plain)
-                                .font(.system(size: 13))
-                                .focused($renameFocused)
-                                .onSubmit { commitRename() }
-                                .onExitCommand { groupPendingRename = nil }
-                        }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                    } else {
-                        SidebarRow(
-                            label: group.name,
-                            icon: "folder",
-                            isSelected: groupFilter == .group(group),
-                            openCount: openCount(for: .group(group)),
-                            overdueCount: overdueCount(for: .group(group))
-                        ) {
-                            groupFilter = .group(group); showTrash = false; showActivityLog = false
-                        }
-                        .contextMenu {
-                            Button("action.rename") {
-                                renameText = group.name
-                                groupPendingRename = group
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                    renameFocused = true
-                                }
+                SidebarSectionLabel("sidebar.groups")
+
+                VStack(spacing: 1) {
+                    ForEach(groups) { group in
+                        if groupPendingRename?.id == group.id {
+                            SidebarRenameField(
+                                icon: "folder",
+                                text: $renameText,
+                                focused: $renameFocused,
+                                onCommit: commitRename,
+                                onCancel: { groupPendingRename = nil }
+                            )
+                        } else {
+                            SidebarRow(
+                                label: group.name,
+                                icon: "folder",
+                                isSelected: groupFilter == .group(group) && !showTrash && !showActivityLog,
+                                openCount: openCount(for: .group(group)),
+                                overdueCount: overdueCount(for: .group(group)),
+                                isDropTarget: dropTargetFilter == .group(group)
+                            ) {
+                                groupFilter = .group(group); showTrash = false; showActivityLog = false
                             }
-                            Divider()
-                            Button("action.delete", role: .destructive) {
-                                groupPendingDelete = group
+                            .dropDestination(for: String.self) { items, _ in
+                                items.forEach { assignTask(uuidString: $0, to: group) }
+                                return true
+                            } isTargeted: { dropTargetFilter = $0 ? .group(group) : nil }
+                            .contextMenu {
+                                Button("action.rename") {
+                                    renameText = group.name
+                                    groupPendingRename = group
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                        renameFocused = true
+                                    }
+                                }
+                                Divider()
+                                Button("action.delete", role: .destructive) {
+                                    groupPendingDelete = group
+                                }
                             }
                         }
                     }
                 }
             }
 
-            Divider().padding(.horizontal, 12).padding(.vertical, 6)
-
+            // ── Add group ─────────────────────────────────────────
             if isAdding {
-                HStack(spacing: 6) {
-                    Image(systemName: "folder.badge.plus")
-                        .font(.system(size: 13))
-                        .foregroundStyle(accent)
-                        .frame(width: 20)
-                    TextField("group.new", text: $newGroupName)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 13))
-                        .focused($fieldFocused)
-                        .onSubmit { commitGroup() }
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
+                SidebarRenameField(
+                    icon: "folder.badge.plus",
+                    text: $newGroupName,
+                    focused: $fieldFocused,
+                    onCommit: commitGroup,
+                    onCancel: { isAdding = false; newGroupName = "" }
+                )
+                .padding(.top, groups.isEmpty ? 8 : 1)
             } else {
                 Button {
                     isAdding = true; fieldFocused = true
                 } label: {
-                    Label("group.new", systemImage: "plus")
-                        .font(.system(size: 12))
-                        .foregroundStyle(accent)
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .semibold))
+                            .frame(width: 18)
+                        Text(LocalizedStringKey("group.new"))
+                            .font(.system(size: 12))
+                    }
+                    .foregroundStyle(accent.opacity(0.7))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
+                .padding(.top, groups.isEmpty ? 8 : 2)
             }
 
             Spacer()
 
-            Divider().padding(.horizontal, 12).padding(.bottom, 4)
+            // ── Utility section ───────────────────────────────────
+            Divider()
+                .padding(.horizontal, 12)
+                .padding(.bottom, 2)
+                .padding(.top, 6)
 
-            // Activity Log row
-            SidebarRow(
-                label: NSLocalizedString("activitylog.title", comment: ""),
-                icon: "chart.bar.doc.horizontal",
-                isSelected: showActivityLog
-            ) {
-                showActivityLog = true; showTrash = false; groupFilter = .all
-            }
-
-            // Trash row
-            HStack(spacing: 8) {
-                Image(systemName: "trash")
-                    .font(.system(size: 13))
-                    .foregroundStyle(showTrash ? Color.red.opacity(0.7) : .secondary)
-                    .frame(width: 20)
-                Text("trash.title")
-                    .font(.system(size: 13))
-                    .foregroundStyle(showTrash ? .primary : .secondary)
-                Spacer()
-                if trashCount > 0 {
-                    Text("\(trashCount)")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(Color.secondary.opacity(0.4), in: Capsule())
+            VStack(spacing: 1) {
+                SidebarRow(
+                    label: NSLocalizedString("activitylog.title", comment: ""),
+                    icon: "chart.bar.doc.horizontal",
+                    isSelected: showActivityLog
+                ) {
+                    showActivityLog = true; showTrash = false; groupFilter = .all
                 }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(showTrash ? Color.red.opacity(0.08) : Color.clear)
-                    .padding(.horizontal, 6)
-            )
-            .contentShape(Rectangle())
-            .onTapGesture { showTrash = true; showActivityLog = false; groupFilter = .all }
 
-            // Settings row
-            SidebarRow(
-                label: NSLocalizedString("sidebar.settings", comment: ""),
-                icon: "gearshape",
-                isSelected: false
-            ) {
-                openSettings()
+                // Trash row — custom because of the count badge style difference
+                SidebarRow(
+                    label: NSLocalizedString("trash.title", comment: ""),
+                    icon: "trash",
+                    isSelected: showTrash,
+                    openCount: trashCount,
+                    overdueCount: 0,
+                    isDestructive: true
+                ) {
+                    showTrash = true; showActivityLog = false; groupFilter = .all
+                }
+
+                SidebarRow(
+                    label: NSLocalizedString("sidebar.settings", comment: ""),
+                    icon: "gearshape",
+                    isSelected: false
+                ) {
+                    openSettings()
+                }
             }
             .padding(.bottom, 8)
         }
-        .padding(.top, 12)
         .frame(minWidth: 180, maxWidth: 220)
         .background(.background)
         .confirmationDialog(
@@ -223,6 +222,8 @@ struct SidebarView: View {
         }
     }
 
+    // MARK: – Actions
+
     private func commitRename() {
         let name = renameText.trimmingCharacters(in: .whitespaces)
         if !name.isEmpty { groupPendingRename?.name = name }
@@ -233,6 +234,12 @@ struct SidebarView: View {
         let name = newGroupName.trimmingCharacters(in: .whitespaces)
         if !name.isEmpty { ctx.insert(TodoGroup(name: name)) }
         newGroupName = ""; isAdding = false
+    }
+
+    private func assignTask(uuidString: String, to group: TodoGroup?) {
+        guard let uuid = UUID(uuidString: uuidString),
+              let item = allItems.first(where: { $0.id == uuid }) else { return }
+        item.group = group
     }
 
     private func deleteGroup(_ group: TodoGroup, moveTasks: Bool) {
@@ -251,6 +258,53 @@ struct SidebarView: View {
     }
 }
 
+// MARK: – Section label
+
+private struct SidebarSectionLabel: View {
+    let key: LocalizedStringKey
+    init(_ key: LocalizedStringKey) { self.key = key }
+
+    var body: some View {
+        Text(key)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(.tertiary)
+            .textCase(.uppercase)
+            .tracking(0.6)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 4)
+    }
+}
+
+// MARK: – Inline rename field
+
+private struct SidebarRenameField: View {
+    let icon: String
+    @Binding var text: String
+    var focused: FocusState<Bool>.Binding
+    let onCommit: () -> Void
+    let onCancel: () -> Void
+    @Environment(\.appAccent) private var accent
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 12))
+                .foregroundStyle(accent)
+                .frame(width: 18)
+            TextField("", text: $text)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .focused(focused)
+                .onSubmit { onCommit() }
+                .onExitCommand { onCancel() }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
+    }
+}
+
 // MARK: – Row
 
 private struct SidebarRow: View {
@@ -259,49 +313,75 @@ private struct SidebarRow: View {
     let isSelected: Bool
     var openCount: Int = 0
     var overdueCount: Int = 0
+    var isDestructive: Bool = false
+    var isDropTarget: Bool = false
     let action: () -> Void
+
     @State private var hovering = false
     @Environment(\.appAccent) private var accent
 
+    private var activeColor: Color { isDestructive ? .red.opacity(0.7) : accent }
+
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 13))
-                    .foregroundStyle(isSelected ? accent : .secondary)
-                    .frame(width: 20)
-                Text(label)
-                    .font(.system(size: 13))
-                    .foregroundStyle(isSelected ? .primary : .secondary)
-                    .lineLimit(1)
-                Spacer()
-                // Count badges
-                if overdueCount > 0 {
-                    Text("\(overdueCount)")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(Color.red.opacity(0.75), in: Capsule())
-                } else if openCount > 0 {
-                    Text("\(openCount)")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(isSelected ? accent : .secondary)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(
-                            (isSelected ? accent : Color.primary).opacity(0.08),
-                            in: Capsule()
-                        )
+            HStack(spacing: 0) {
+
+                // Left accent stripe
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? activeColor : (isDropTarget ? activeColor.opacity(0.6) : Color.clear))
+                    .frame(width: 3, height: 16)
+                    .padding(.leading, 6)
+                    .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isSelected)
+                    .animation(.easeInOut(duration: 0.15), value: isDropTarget)
+
+                HStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected || isDropTarget ? activeColor : .secondary)
+                        .frame(width: 18)
+                        .animation(.easeInOut(duration: 0.12), value: isSelected)
+
+                    Text(label)
+                        .font(.system(size: 13, weight: isSelected ? .medium : .regular))
+                        .foregroundStyle(isSelected ? .primary : .secondary)
+                        .lineLimit(1)
+                        .animation(.easeInOut(duration: 0.12), value: isSelected)
+
+                    Spacer()
+
+                    // Count badges
+                    if overdueCount > 0 {
+                        Text("\(overdueCount)")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Color.red.opacity(0.75), in: Capsule())
+                    } else if openCount > 0 {
+                        Text("\(openCount)")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(isSelected ? activeColor : Color.primary.opacity(0.3))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(
+                                (isSelected ? activeColor : Color.primary).opacity(0.08),
+                                in: Capsule()
+                            )
+                    }
                 }
+                .padding(.leading, 8)
+                .padding(.trailing, 12)
+                .padding(.vertical, 7)
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(isDropTarget
+                              ? activeColor.opacity(0.10)
+                              : (isSelected ? activeColor.opacity(0.07)
+                                 : (hovering ? Color.primary.opacity(0.04) : Color.clear)))
+                )
+                .animation(.easeInOut(duration: 0.15), value: isDropTarget)
+                .padding(.trailing, 6)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(isSelected ? accent.opacity(0.12) : (hovering ? Color.primary.opacity(0.04) : Color.clear))
-                    .padding(.horizontal, 6)
-            )
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }

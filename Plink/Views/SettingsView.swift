@@ -401,6 +401,19 @@ private struct ShortcutTab: View {
                 }
                 .padding(.horizontal, 20)
 
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(LocalizedStringKey("settings.shortcut.focusMode.label"))
+                            .font(.system(size: 13))
+                        Text(LocalizedStringKey("settings.shortcut.focusMode.default"))
+                            .font(.system(size: 11))
+                            .foregroundStyle(.tertiary)
+                    }
+                    Spacer()
+                    KeyboardShortcuts.Recorder("", name: .focusMode)
+                }
+                .padding(.horizontal, 20)
+
                 Divider().padding(.horizontal, 20)
 
                 // How to change

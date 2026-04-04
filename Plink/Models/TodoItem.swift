@@ -42,6 +42,44 @@ enum BlockingStatus: Int, Codable {
     case blocked   // I am blocked by someone else
 }
 
+// MARK: – Recurrence
+
+enum RecurrenceFrequency: Int, Codable, CaseIterable {
+    case none = 0, daily, weekly, monthly, yearly
+
+    var label: String {
+        switch self {
+        case .none:    return NSLocalizedString("recurrence.none", comment: "")
+        case .daily:   return NSLocalizedString("recurrence.daily", comment: "")
+        case .weekly:  return NSLocalizedString("recurrence.weekly", comment: "")
+        case .monthly: return NSLocalizedString("recurrence.monthly", comment: "")
+        case .yearly:  return NSLocalizedString("recurrence.yearly", comment: "")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .none:    return "arrow.2.circlepath"
+        case .daily:   return "sun.max"
+        case .weekly:  return "calendar"
+        case .monthly: return "calendar.badge.clock"
+        case .yearly:  return "calendar.badge.plus"
+        }
+    }
+
+    /// Returns the next due date from a given anchor date.
+    func nextDate(from date: Date, interval: Int) -> Date {
+        let cal = Calendar.current
+        switch self {
+        case .none:    return date
+        case .daily:   return cal.date(byAdding: .day,   value: interval, to: date) ?? date
+        case .weekly:  return cal.date(byAdding: .weekOfYear, value: interval, to: date) ?? date
+        case .monthly: return cal.date(byAdding: .month, value: interval, to: date) ?? date
+        case .yearly:  return cal.date(byAdding: .year,  value: interval, to: date) ?? date
+        }
+    }
+}
+
 // MARK: – Priority
 
 enum Priority: Int, Codable, CaseIterable {
@@ -85,6 +123,31 @@ final class TodoItem {
     var links: [String] = []
     var locationAddress: String = ""
     var blockingStatus: BlockingStatus?
+    var recurrenceFrequency: Int = 0   // RecurrenceFrequency.rawValue
+    var recurrenceInterval: Int  = 1   // every N units
+
+    var recurrence: RecurrenceFrequency {
+        get { RecurrenceFrequency(rawValue: recurrenceFrequency) ?? .none }
+        set { recurrenceFrequency = newValue.rawValue }
+    }
+
+    var isRecurring: Bool { recurrence != .none }
+
+    /// Spawns the next occurrence. Call after marking this item completed.
+    func spawnNextOccurrence(in context: ModelContext) {
+        guard let anchor = dueDate, isRecurring else { return }
+        let nextDate = recurrence.nextDate(from: anchor, interval: recurrenceInterval)
+        let next = TodoItem(title: title, desc: desc, priority: priority,
+                            dueDate: nextDate, group: group)
+        next.hasDueTime          = hasDueTime
+        next.links               = links
+        next.locationAddress     = locationAddress
+        next.blockingStatus      = blockingStatus
+        next.recurrenceFrequency = recurrenceFrequency
+        next.recurrenceInterval  = recurrenceInterval
+        context.insert(next)
+        Task { @MainActor in NotificationManager.shared.schedule(for: next) }
+    }
 
     init(
         title: String,

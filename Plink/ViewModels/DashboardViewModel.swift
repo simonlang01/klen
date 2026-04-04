@@ -3,15 +3,21 @@ import SwiftData
 
 enum TaskSection: String, CaseIterable {
     case overdue, today, tomorrow, next7Days, later, noDate, recentlyCompleted
+    case priorityHigh, priorityMedium, priorityLow, priorityNone
+
     var label: LocalizedStringKey {
         switch self {
-        case .overdue:           return "section.overdue"
-        case .today:             return "section.today"
-        case .tomorrow:          return "section.tomorrow"
-        case .next7Days:         return "section.next7Days"
-        case .later:             return "section.later"
-        case .noDate:            return "section.noDate"
-        case .recentlyCompleted: return "section.recentlyCompleted"
+        case .overdue:          return "section.overdue"
+        case .today:            return "section.today"
+        case .tomorrow:         return "section.tomorrow"
+        case .next7Days:        return "section.next7Days"
+        case .later:            return "section.later"
+        case .noDate:           return "section.noDate"
+        case .recentlyCompleted:return "section.recentlyCompleted"
+        case .priorityHigh:     return "priority.high"
+        case .priorityMedium:   return "priority.medium"
+        case .priorityLow:      return "priority.low"
+        case .priorityNone:     return "priority.none"
         }
     }
 }
@@ -30,15 +36,28 @@ enum GroupFilter: Equatable {
     }
 }
 
+enum TaskSortOrder: String {
+    case date, priority
+}
+
 @MainActor
 final class DashboardViewModel: ObservableObject {
     @Published var groupFilter: GroupFilter = .all
     @Published var searchQuery: String = ""
+    @Published var sortOrder: TaskSortOrder = .date
 
     /// Recently completed window shown in main list (30 min). Activity log shows full history.
     static let completedVisibilityWindow: TimeInterval = 30 * 60
 
     func sections(from items: [TodoItem], tick: Bool = false) -> [(TaskSection, [TodoItem])] {
+        sortOrder == .priority
+            ? prioritySections(from: items)
+            : dateSections(from: items, tick: tick)
+    }
+
+    // MARK: – Date sections (default)
+
+    private func dateSections(from items: [TodoItem], tick: Bool) -> [(TaskSection, [TodoItem])] {
         let cal = Calendar.current
         let now = Date()
         let startOfToday    = cal.startOfDay(for: now)
@@ -63,8 +82,7 @@ final class DashboardViewModel: ObservableObject {
         }
 
         let grouped = Dictionary(grouping: active, by: bucket)
-        var result: [(TaskSection, [TodoItem])] = TaskSection.allCases.compactMap { section in
-            guard section != .recentlyCompleted else { return nil }
+        var result: [(TaskSection, [TodoItem])] = ([.overdue, .today, .tomorrow, .next7Days, .later, .noDate] as [TaskSection]).compactMap { section in
             guard let items = grouped[section], !items.isEmpty else { return nil }
             return (section, items.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) })
         }
@@ -73,6 +91,28 @@ final class DashboardViewModel: ObservableObject {
             result.append((.recentlyCompleted, recentDone.sorted { ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast) }))
         }
         return result
+    }
+
+    // MARK: – Priority sections
+
+    private func prioritySections(from items: [TodoItem]) -> [(TaskSection, [TodoItem])] {
+        let active = items.filter { !$0.isCompleted && !$0.isDeleted && matches($0) }
+
+        func bucket(_ item: TodoItem) -> TaskSection {
+            switch item.priority {
+            case .high:   return .priorityHigh
+            case .medium: return .priorityMedium
+            case .low:    return .priorityLow
+            case .none:   return .priorityNone
+            }
+        }
+
+        let grouped = Dictionary(grouping: active, by: bucket)
+        return ([.priorityHigh, .priorityMedium, .priorityLow, .priorityNone] as [TaskSection]).compactMap { section in
+            guard let items = grouped[section], !items.isEmpty else { return nil }
+            // Within same priority: sort by due date (no date last)
+            return (section, items.sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) })
+        }
     }
 
     // MARK: – Stats
@@ -91,7 +131,7 @@ final class DashboardViewModel: ObservableObject {
         let startOfToday = cal.startOfDay(for: now)
         let startOfWeek  = cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now))!
 
-        let active = items.filter { !$0.isDeleted }
+        let active = items.filter { !$0.isDeleted && matches($0) }
         return Stats(
             openCount:         active.filter { !$0.isCompleted }.count,
             dueToday:          active.filter { !$0.isCompleted && ($0.dueDate.map { cal.isDateInToday($0) } ?? false) }.count,

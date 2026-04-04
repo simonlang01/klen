@@ -11,45 +11,35 @@ struct SectionHeaderView: View {
         return section.label
     }
 
-    private var sectionColor: Color {
+    private var labelColor: Color {
         switch section {
-        case .overdue:           return .red.opacity(0.75)
-        case .recentlyCompleted: return accent.opacity(0.7)
-        default:                 return .secondary
-        }
-    }
-
-    private var icon: String? {
-        switch section {
-        case .overdue:           return "exclamationmark.circle.fill"
-        case .recentlyCompleted: return "checkmark.circle.fill"
-        case .today:             return "sun.max.fill"
-        case .tomorrow:          return "sunrise.fill"
-        case .next7Days:         return "calendar"
-        case .later:             return "ellipsis.circle"
-        case .noDate:            return "tray"
+        case .overdue: return .red.opacity(0.7)
+        default:       return Color.primary.opacity(0.35)
         }
     }
 
     var body: some View {
-        HStack(spacing: 6) {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.system(size: 11))
-                    .foregroundStyle(sectionColor)
-            }
+        HStack(spacing: 10) {
+            // Thin separator line
+            Rectangle()
+                .fill(labelColor.opacity(0.4))
+                .frame(height: 1)
+                .frame(width: 16)
+
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(sectionColor)
-                .textCase(.uppercase)
-                .tracking(0.5)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(labelColor)
+
             Text("\(count)")
-                .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(.tertiary)
-            Spacer()
+                .font(.system(size: 11))
+                .foregroundStyle(labelColor.opacity(0.5))
+
+            Rectangle()
+                .fill(Color.primary.opacity(0.06))
+                .frame(height: 1)
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 18)
-        .padding(.bottom, 4)
+        .padding(.horizontal, 16)
+        .padding(.top, 22)
+        .padding(.bottom, 6)
     }
 }

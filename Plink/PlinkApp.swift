@@ -28,7 +28,7 @@ struct PlinkApp: App {
     private func setup() {
         let container = PersistenceController.shared.container
         QuickAddPanelController.shared.setup(container: container, appState: appState)
-        StatusBarController.shared.setup(container: container)
+        StatusBarController.shared.setup(container: container, appState: appState)
         NotificationManager.shared.setup()
     }
 

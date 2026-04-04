@@ -8,162 +8,252 @@ struct TaskRowView: View {
     let onSelect: () -> Void
 
     @State private var hovering = false
+    @State private var checkHovering = false
     @Environment(\.appAccent) private var accent
 
     private var isOverdue: Bool {
-        guard let due = item.dueDate else { return false }
-        if item.hasDueTime { return due < Date() && !item.isCompleted }
-        return due < Calendar.current.startOfDay(for: Date()) && !item.isCompleted
+        guard let due = item.dueDate, !item.isCompleted else { return false }
+        if item.hasDueTime { return due < Date() }
+        return due < Calendar.current.startOfDay(for: Date())
     }
 
     var body: some View {
-        ZStack(alignment: .trailing) {
+        HStack(spacing: 12) {
 
-            // ── Row content (slides left on hover) ──────────────
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(item.title)
-                        .font(.system(size: 14))
-                        .foregroundStyle(item.isCompleted ? .secondary : .primary)
-                        .strikethrough(item.isCompleted, color: .secondary)
-                        .lineLimit(1)
+            // ── Circular checkbox ────────────────────────────────
+            Button(action: onComplete) {
+                ZStack {
+                    Circle()
+                        .strokeBorder(
+                            item.isCompleted
+                                ? Color.clear
+                                : (checkHovering ? accent : Color.primary.opacity(0.2)),
+                            lineWidth: 1.5
+                        )
+                        .frame(width: 20, height: 20)
 
-                    if !item.desc.isEmpty {
-                        Text(item.desc)
-                            .font(.system(size: 12))
-                            .foregroundStyle(.tertiary)
-                            .lineLimit(1)
+                    Circle()
+                        .fill(item.isCompleted ? accent : Color.clear)
+                        .frame(width: 20, height: 20)
+
+                    if item.isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                    } else if checkHovering {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(accent.opacity(0.5))
                     }
                 }
+                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: item.isCompleted)
+                .animation(.easeInOut(duration: 0.12), value: checkHovering)
+            }
+            .buttonStyle(.plain)
+            .onHover { checkHovering = $0 }
 
-                Spacer()
+            // ── Text content ─────────────────────────────────────
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.title)
+                    .font(.system(size: 13.5, weight: item.isCompleted ? .regular : .medium))
+                    .foregroundStyle(item.isCompleted ? .tertiary : .primary)
+                    .strikethrough(item.isCompleted, color: Color.primary.opacity(0.3))
+                    .lineLimit(1)
+                    .animation(.easeInOut(duration: 0.15), value: item.isCompleted)
 
-                HStack(spacing: 7) {
-                    if let bs = item.blockingStatus, bs != .none {
-                        BlockingBadge(status: bs)
-                    }
-                    if item.priority != .none {
-                        PriorityBadge(priority: item.priority)
-                    }
+                if !item.desc.isEmpty {
+                    Text(item.desc)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.quaternary)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer()
+
+            // ── Badges ───────────────────────────────────────────
+            HStack(spacing: 6) {
+                if let bs = item.blockingStatus, bs != .none {
+                    BlockingBadge(status: bs)
+                }
+
+                HStack(spacing: 5) {
                     if !item.attachments.isEmpty {
                         Image(systemName: "paperclip")
                             .font(.system(size: 11))
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.quaternary)
                     }
                     if !item.links.isEmpty {
                         Image(systemName: "link")
                             .font(.system(size: 11))
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.quaternary)
                     }
                     if !item.locationAddress.isEmpty {
                         Image(systemName: "mappin")
                             .font(.system(size: 11))
-                            .foregroundStyle(.tertiary)
-                    }
-                    if let due = item.dueDate {
-                        HStack(spacing: 3) {
-                            Text(due, style: .date)
-                            if item.hasDueTime {
-                                Text("·").opacity(0.5)
-                                Text(due, style: .time)
-                            }
-                        }
-                        .font(.system(size: 12))
-                        .foregroundStyle(isOverdue ? AnyShapeStyle(Color.red.opacity(0.8)) : AnyShapeStyle(.tertiary))
-                    }
-                    if let group = item.group {
-                        Text(group.name)
-                            .font(.system(size: 11))
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 2)
-                            .background(accent.opacity(0.12), in: Capsule())
-                            .foregroundStyle(accent)
+                            .foregroundStyle(.quaternary)
                     }
                 }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 11)
-            .padding(.trailing, hovering ? 76 : 0)
-            .background(
-                RoundedRectangle(cornerRadius: 9)
-                    .fill(isSelected
-                          ? accent.opacity(0.10)
-                          : hovering ? Color.primary.opacity(0.04) : Color.clear)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 9)
-                    .strokeBorder(isSelected ? accent.opacity(0.25) : Color.clear, lineWidth: 1)
-            )
-            .contentShape(Rectangle())
-            .onTapGesture { onSelect() }
-            .animation(.spring(duration: 0.2), value: hovering)
-            .animation(.spring(duration: 0.15), value: isSelected)
 
-            // ── Complete button ──────────────────────────────────
-            Button(action: onComplete) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(item.isCompleted ? Color.secondary.opacity(0.1) : accent.opacity(0.12))
-                    Image(systemName: item.isCompleted ? "arrow.uturn.backward" : "checkmark")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(item.isCompleted ? .secondary : accent)
+                if item.isRecurring {
+                    Image(systemName: "arrow.2.circlepath")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.quaternary)
                 }
-                .frame(width: 68)
+
+                if item.priority != .none {
+                    PriorityDot(priority: item.priority)
+                }
+
+                if let due = item.dueDate {
+                    DueDateLabel(date: due, hasDueTime: item.hasDueTime, isOverdue: isOverdue)
+                }
             }
-            .buttonStyle(.plain)
-            .opacity(hovering ? 1 : 0)
-            .scaleEffect(x: hovering ? 1 : 0.7, anchor: .trailing)
-            .allowsHitTesting(hovering)
-            .animation(.spring(duration: 0.2), value: hovering)
+            .opacity(item.isCompleted ? 0.4 : 1)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isSelected
+                      ? accent.opacity(0.08)
+                      : hovering ? Color.primary.opacity(0.035) : Color.clear)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .strokeBorder(isSelected ? accent.opacity(0.18) : Color.clear, lineWidth: 1)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { onSelect() }
         .onHover { hovering = $0 }
+        .animation(.spring(response: 0.25, dampingFraction: 0.8), value: hovering)
+        .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isSelected)
         .contextMenu {
             Button(LocalizedStringKey("task.edit")) { onSelect() }
-            Button(item.isCompleted ? LocalizedStringKey("task.markIncomplete") : LocalizedStringKey("task.markComplete"), action: onComplete)
+            Button(item.isCompleted
+                   ? LocalizedStringKey("task.markIncomplete")
+                   : LocalizedStringKey("task.markComplete"), action: onComplete)
             Divider()
             Button("action.delete", role: .destructive, action: onDelete)
         }
+        .draggable(item.id.uuidString)
     }
 }
+
+// MARK: – Circular checkbox (standalone, for reuse)
+
+struct CircularCheckbox: View {
+    let isCompleted: Bool
+    let action: () -> Void
+    @State private var hovering = false
+    @Environment(\.appAccent) private var accent
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Circle()
+                    .strokeBorder(
+                        isCompleted ? Color.clear : (hovering ? accent : Color.primary.opacity(0.2)),
+                        lineWidth: 1.5
+                    )
+                Circle()
+                    .fill(isCompleted ? accent : Color.clear)
+                if isCompleted {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.white)
+                } else if hovering {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(accent.opacity(0.5))
+                }
+            }
+            .frame(width: 20, height: 20)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isCompleted)
+            .animation(.easeInOut(duration: 0.12), value: hovering)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+    }
+}
+
+// MARK: – Priority dot
+
+private struct PriorityDot: View {
+    let priority: Priority
+    @Environment(\.appAccent) private var accent
+
+    private var color: Color {
+        switch priority {
+        case .high:   return .red.opacity(0.75)
+        case .medium: return .orange.opacity(0.75)
+        case .low:    return accent.opacity(0.75)
+        case .none:   return .clear
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(color)
+                .frame(width: 6, height: 6)
+            Text(priority.chipLabel)
+                .font(.system(size: 11))
+                .foregroundStyle(color)
+        }
+    }
+}
+
+// MARK: – Due date label
+
+private struct DueDateLabel: View {
+    let date: Date
+    let hasDueTime: Bool
+    let isOverdue: Bool
+
+    private static let dateFmt: DateFormatter = {
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .none; return f
+    }()
+    private static let timeFmt: DateFormatter = {
+        let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f
+    }()
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "calendar")
+                .font(.system(size: 10))
+            Text(Self.dateFmt.string(from: date))
+            if hasDueTime {
+                Text("·").opacity(0.5)
+                Text(Self.timeFmt.string(from: date))
+            }
+        }
+        .font(.system(size: 11))
+        .foregroundStyle(isOverdue ? Color.red.opacity(0.8) : Color.primary.opacity(0.35))
+    }
+}
+
+// MARK: – Blocking badge
 
 private struct BlockingBadge: View {
     let status: BlockingStatus
+
+    private var color: Color { status == .blocking ? .red : .orange }
+    private var icon: String { status == .blocking ? "exclamationmark.circle.fill" : "hand.raised.fill" }
+    private var label: String {
+        status == .blocking
+            ? NSLocalizedString("blocking.status.blocking", comment: "")
+            : NSLocalizedString("blocking.status.blocked", comment: "")
+    }
+
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: status == .blocking ? "exclamationmark.circle.fill" : "hand.raised.fill")
-                .font(.system(size: 10, weight: .semibold))
-            Text(status == .blocking
-                 ? NSLocalizedString("blocking.status.blocking", comment: "")
-                 : NSLocalizedString("blocking.status.blocked", comment: ""))
-                .font(.system(size: 11, weight: .semibold))
+            Image(systemName: icon).font(.system(size: 9, weight: .semibold))
+            Text(label).font(.system(size: 11, weight: .medium))
         }
-        .foregroundStyle(status == .blocking ? Color.red.opacity(0.85) : Color.orange.opacity(0.85))
-        .padding(.horizontal, 7)
+        .foregroundStyle(color.opacity(0.85))
+        .padding(.horizontal, 6)
         .padding(.vertical, 2)
-        .background(
-            (status == .blocking ? Color.red : Color.orange).opacity(0.12),
-            in: Capsule()
-        )
-    }
-}
-
-private struct PriorityBadge: View {
-    let priority: Priority
-    @Environment(\.appAccent) private var accent
-    var body: some View {
-        Text(priority.chipLabel)
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(badgeColor)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 2)
-            .background(badgeColor.opacity(0.12), in: Capsule())
-    }
-    private var badgeColor: Color {
-        switch priority {
-        case .high:   return .red.opacity(0.8)
-        case .medium: return .orange.opacity(0.8)
-        case .low:    return accent.opacity(0.8)
-        case .none:   return .clear
-        }
+        .background(color.opacity(0.10), in: Capsule())
     }
 }

@@ -20,6 +20,8 @@ struct AddTaskSheet: View {
     @State private var links: [String] = []
     @State private var locationAddress: String = ""
     @State private var blockingStatus: BlockingStatus = .none
+    @State private var recurrenceFrequency: RecurrenceFrequency = .none
+    @State private var recurrenceInterval: Int = 1
     @State private var pendingAttachments: [(name: String, path: String, uti: String)] = []
     @State private var showFilePicker = false
     @FocusState private var titleFocused: Bool
@@ -140,6 +142,12 @@ struct AddTaskSheet: View {
             // Attributes row 2: date + time
             DateTimePickerRow(date: $dueDate, hasDueTime: $hasDueTime, dueTime: $dueTime)
                 .padding(.horizontal, 20)
+                .padding(.bottom, 4)
+
+            // Recurrence — always visible; disabled until a date is set
+            RecurrencePickerRow(frequency: $recurrenceFrequency, interval: $recurrenceInterval,
+                                disabled: dueDate == nil)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 10)
 
             // Extras (manual mode only)
@@ -220,6 +228,8 @@ struct AddTaskSheet: View {
                     let finalDate = manualDate ?? result.dueDate
                     let item = TodoItem(title: result.title, desc: result.desc, priority: result.priority, dueDate: finalDate, group: selectedGroup)
                     item.hasDueTime = manualHasDueTime
+                    item.recurrence = recurrenceFrequency
+                    item.recurrenceInterval = recurrenceInterval
                     ctx.insert(item)
                     NotificationManager.shared.schedule(for: item)
                 }
@@ -235,6 +245,8 @@ struct AddTaskSheet: View {
             item.links = links
             item.locationAddress = locationAddress
             item.blockingStatus = blockingStatus == .none ? nil : blockingStatus
+            item.recurrence = recurrenceFrequency
+            item.recurrenceInterval = recurrenceInterval
             ctx.insert(item)
             NotificationManager.shared.schedule(for: item)
             for att in pendingAttachments {

@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 import SwiftData
 
 @MainActor
@@ -7,14 +8,17 @@ final class StatusBarController {
 
     private var statusItem: NSStatusItem?
     private var container: ModelContainer?
+    private weak var appState: AppState?
+    private var popover: NSPopover?
     private(set) var isRunning: Bool = true {
         didSet { updateIcon() }
     }
 
     private init() {}
 
-    func setup(container: ModelContainer) {
+    func setup(container: ModelContainer, appState: AppState) {
         self.container = container
+        self.appState = appState
 
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.imageScaling = .scaleProportionallyDown
@@ -24,7 +28,6 @@ final class StatusBarController {
         self.statusItem = item
 
         updateIcon()
-        buildMenu()
     }
 
     // MARK: – Icon
@@ -37,13 +40,11 @@ final class StatusBarController {
     private func makeStatusImage(running: Bool) -> NSImage {
         let size = NSSize(width: 18, height: 18)
         let image = NSImage(size: size, flipped: false) { rect in
-            // Checklist symbol
             let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .medium)
             let symbol = NSImage(systemSymbolName: "checklist", accessibilityDescription: nil)?
                 .withSymbolConfiguration(config)
             symbol?.draw(in: NSRect(x: 1, y: 2, width: 13, height: 13))
 
-            // Status dot
             let dotRadius: CGFloat = 3.5
             let dotCenter = NSPoint(x: rect.maxX - dotRadius - 0.5, y: rect.minY + dotRadius + 0.5)
             let dotRect = NSRect(
@@ -63,18 +64,45 @@ final class StatusBarController {
     @objc private func handleClick(_ sender: NSStatusBarButton) {
         guard let event = NSApp.currentEvent else { return }
         if event.type == .rightMouseUp {
-            statusItem?.menu = buildMenu()
-            statusItem?.button?.performClick(nil)
-            statusItem?.menu = nil
+            showContextMenu()
         } else {
-            toggleMainWindow()
+            togglePopover()
         }
     }
 
-    // MARK: – Menu
+    // MARK: – Popover
 
-    @discardableResult
-    private func buildMenu() -> NSMenu {
+    private func togglePopover() {
+        if let pop = popover, pop.isShown {
+            pop.performClose(nil)
+            return
+        }
+        guard let button = statusItem?.button, let container else { return }
+
+        let pop = NSPopover()
+        pop.behavior = .transient
+        pop.animates = true
+
+        let accentColor = appState?.accentOption.color ?? Theme.defaultAccent
+        let colorScheme = appState?.appearanceMode.colorScheme
+        let content = MenuBarPopoverView { [weak self] in
+            pop.performClose(nil)
+            self?.openMainWindow()
+        }
+        .modelContainer(container)
+        .environment(\.appAccent, accentColor)
+        .preferredColorScheme(colorScheme)
+
+        pop.contentViewController = NSHostingController(rootView: content)
+        pop.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        pop.contentViewController?.view.window?.makeKey()
+
+        self.popover = pop
+    }
+
+    // MARK: – Context menu (right-click)
+
+    private func showContextMenu() {
         let menu = NSMenu()
 
         let openItem = NSMenuItem(title: "Open Plink", action: #selector(openApp), keyEquivalent: "")
@@ -85,7 +113,6 @@ final class StatusBarController {
 
         let quickAddItem = NSMenuItem(title: "New Task", action: #selector(triggerQuickAdd), keyEquivalent: "")
         quickAddItem.target = self
-        quickAddItem.keyEquivalentModifierMask = .option
         menu.addItem(quickAddItem)
 
         menu.addItem(.separator())
@@ -94,27 +121,25 @@ final class StatusBarController {
         quitItem.keyEquivalentModifierMask = .command
         menu.addItem(quitItem)
 
-        return menu
+        statusItem?.menu = menu
+        statusItem?.button?.performClick(nil)
+        statusItem?.menu = nil
     }
 
     // MARK: – Actions
 
     @objc private func openApp() {
-        toggleMainWindow()
+        openMainWindow()
     }
 
     @objc private func triggerQuickAdd() {
         QuickAddPanelController.shared.toggle()
     }
 
-    private func toggleMainWindow() {
+    private func openMainWindow() {
         if let window = NSApp.windows.first(where: { $0.identifier?.rawValue == "main" }) ?? NSApp.windows.first(where: { !($0 is NSPanel) }) {
-            if window.isVisible && NSApp.isActive {
-                NSApp.hide(nil)
-            } else {
-                NSApp.activate(ignoringOtherApps: true)
-                window.makeKeyAndOrderFront(nil)
-            }
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
         } else {
             NSApp.activate(ignoringOtherApps: true)
         }

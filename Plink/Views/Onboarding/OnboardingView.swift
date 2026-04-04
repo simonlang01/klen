@@ -51,6 +51,13 @@ struct OnboardingView: View {
             body: NSLocalizedString("onboarding.groups.body", comment: "")
         ),
         .init(
+            icon: "arrow.2.circlepath",
+            iconColor: .teal,
+            title: NSLocalizedString("onboarding.recurring.title", comment: ""),
+            subtitle: NSLocalizedString("onboarding.recurring.subtitle", comment: ""),
+            body: NSLocalizedString("onboarding.recurring.body", comment: "")
+        ),
+        .init(
             icon: "paintpalette.fill",
             iconColor: .pink,
             title: NSLocalizedString("onboarding.accent.title", comment: ""),

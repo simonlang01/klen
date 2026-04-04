@@ -23,7 +23,7 @@ private func loc(_ key: String) -> String { NSLocalizedString(key, comment: "") 
 
 extension HelpTopic {
     // Computed so strings are re-evaluated after language change
-    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, notifications, search, trash, settings, shortcuts, backup, activityLog] }
+    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, recurring, menuBar, focusMode, notifications, search, trash, settings, shortcuts, backup, activityLog] }
 
     static var dashboard: HelpTopic { HelpTopic(
         id: "dashboard", icon: "square.grid.2x2", title: loc("help.dashboard.title"),
@@ -34,7 +34,10 @@ extension HelpTopic {
             .init(id: "d2", heading: loc("help.dashboard.s2.heading"), body: loc("help.dashboard.s2.body"),
                   tip: loc("help.dashboard.s2.tip")),
             .init(id: "d3", heading: loc("help.dashboard.s3.heading"), body: loc("help.dashboard.s3.body")),
-            .init(id: "d4", heading: loc("help.dashboard.s4.heading"), body: loc("help.dashboard.s4.body"))
+            .init(id: "d4", heading: loc("help.dashboard.s4.heading"), body: loc("help.dashboard.s4.body")),
+            .init(id: "d6", heading: loc("help.dashboard.s6.heading"), body: loc("help.dashboard.s6.body"),
+                  tip: loc("help.dashboard.s6.tip")),
+            .init(id: "d7", heading: loc("help.dashboard.s7.heading"), body: loc("help.dashboard.s7.body"))
         ]
     )}
 
@@ -83,10 +86,40 @@ extension HelpTopic {
             .init(id: "g1", heading: loc("help.groups.s1.heading"), body: loc("help.groups.s1.body")),
             .init(id: "g2", heading: loc("help.groups.s2.heading"), body: loc("help.groups.s2.body")),
             .init(id: "g6", heading: loc("help.groups.s6.heading"), body: loc("help.groups.s6.body")),
+            .init(id: "g7", heading: loc("help.groups.s7.heading"), body: loc("help.groups.s7.body"),
+                  tip: loc("help.groups.s7.tip")),
             .init(id: "g3", heading: loc("help.groups.s3.heading"), body: loc("help.groups.s3.body")),
             .init(id: "g4", heading: loc("help.groups.s4.heading"), body: loc("help.groups.s4.body"),
                   tip: loc("help.groups.s4.tip")),
             .init(id: "g5", heading: loc("help.groups.s5.heading"), body: loc("help.groups.s5.body"))
+        ]
+    )}
+
+    static var recurring: HelpTopic { HelpTopic(
+        id: "recurring", icon: "arrow.2.circlepath", title: loc("help.recurring.title"),
+        sections: [
+            .init(id: "r1", heading: loc("help.recurring.s1.heading"), body: loc("help.recurring.s1.body")),
+            .init(id: "r2", heading: loc("help.recurring.s2.heading"), body: loc("help.recurring.s2.body"),
+                  tip: loc("help.recurring.s2.tip")),
+            .init(id: "r3", heading: loc("help.recurring.s3.heading"), body: loc("help.recurring.s3.body"))
+        ]
+    )}
+
+    static var menuBar: HelpTopic { HelpTopic(
+        id: "menubar", icon: "menubar.rectangle", title: loc("help.menubar.title"),
+        sections: [
+            .init(id: "mb1", heading: loc("help.menubar.s1.heading"), body: loc("help.menubar.s1.body")),
+            .init(id: "mb2", heading: loc("help.menubar.s2.heading"), body: loc("help.menubar.s2.body"),
+                  tip: loc("help.menubar.s2.tip"))
+        ]
+    )}
+
+    static var focusMode: HelpTopic { HelpTopic(
+        id: "focus", icon: "scope", title: loc("help.focus.title"),
+        sections: [
+            .init(id: "f1", heading: loc("help.focus.s1.heading"), body: loc("help.focus.s1.body")),
+            .init(id: "f2", heading: loc("help.focus.s2.heading"), body: loc("help.focus.s2.body"),
+                  tip: loc("help.focus.s2.tip"))
         ]
     )}
 
@@ -130,7 +163,8 @@ extension HelpTopic {
             .init(id: "k2", heading: loc("help.shortcuts.s2.heading"), body: loc("help.shortcuts.s2.body")),
             .init(id: "k3", heading: loc("help.shortcuts.s3.heading"), body: loc("help.shortcuts.s3.body")),
             .init(id: "k4", heading: loc("help.shortcuts.s4.heading"), body: loc("help.shortcuts.s4.body")),
-            .init(id: "k5", heading: loc("help.shortcuts.s5.heading"), body: loc("help.shortcuts.s5.body"))
+            .init(id: "k5", heading: loc("help.shortcuts.s5.heading"), body: loc("help.shortcuts.s5.body")),
+            .init(id: "k6", heading: loc("help.shortcuts.s6.heading"), body: loc("help.shortcuts.s6.body"))
         ]
     )}
 
