@@ -73,6 +73,7 @@ final class TodoItem {
     var desc: String
     var priority: Priority
     var dueDate: Date?
+    var hasDueTime: Bool = false
     var isCompleted: Bool
     var isDeleted: Bool
     var createdAt: Date

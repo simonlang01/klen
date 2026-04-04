@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import KeyboardShortcuts
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject private var appState: AppState
@@ -12,6 +13,9 @@ struct SettingsView: View {
 
             SmartInputTab()
                 .tabItem { Label(LocalizedStringKey("settings.tab.smartInput"), systemImage: "sparkles") }
+
+            NotificationsTab()
+                .tabItem { Label(LocalizedStringKey("settings.tab.notifications"), systemImage: "bell") }
 
             ShortcutTab()
                 .tabItem { Label(LocalizedStringKey("settings.tab.shortcut"), systemImage: "keyboard") }
@@ -183,6 +187,187 @@ private struct SmartInputTab: View {
             .animation(.easeInOut(duration: 0.2), value: appState.smartInputEnabled)
         }
         .frame(minHeight: 260)
+    }
+}
+
+// MARK: – Notifications Tab
+
+private struct NotificationsTab: View {
+    @ObservedObject private var nm = NotificationManager.shared
+    @Query(sort: \TodoGroup.name) private var groups: [TodoGroup]
+    @Query private var allItems: [TodoItem]
+    @Environment(\.appAccent) private var accent
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+
+                // Always-visible setup hint — macOS can't distinguish Banners vs Alerts in code
+                if nm.authStatus == .authorized {
+                    HStack(spacing: 12) {
+                        Image(systemName: "bell.badge.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(accent)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(LocalizedStringKey("settings.notif.alertstyle.title"))
+                                .font(.system(size: 12, weight: .semibold))
+                            Text(LocalizedStringKey("settings.notif.alertstyle.desc"))
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Button {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
+                        } label: {
+                            Text(LocalizedStringKey("settings.notif.alertstyle.button"))
+                                .font(.system(size: 11, weight: .medium))
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(accent.opacity(0.06), in: RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+
+                    Divider().padding(.horizontal, 20).padding(.top, 12)
+                }
+
+                // Permission banner (shown when not authorized)
+                if nm.authStatus != .authorized {
+                    HStack(spacing: 10) {
+                        Image(systemName: "bell.slash")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(LocalizedStringKey("settings.notif.permission.title"))
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(.orange)
+                            Text(LocalizedStringKey("settings.notif.permission.desc"))
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Button(LocalizedStringKey("settings.notif.permission.button")) {
+                            Task { await nm.requestPermission() }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                        .controlSize(.small)
+                    }
+                    .padding(14)
+                    .background(Color.orange.opacity(0.06), in: RoundedRectangle(cornerRadius: 10))
+                    .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.orange.opacity(0.2), lineWidth: 1))
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+
+                    Divider().padding(.horizontal, 20).padding(.top, 12)
+                }
+
+                // Global kill-switch
+                SettingsRow(
+                    icon: "bell.badge",
+                    title: LocalizedStringKey("settings.notif.global.title"),
+                    desc: LocalizedStringKey("settings.notif.global.desc")
+                ) {
+                    Toggle(isOn: Binding(
+                        get: { nm.globalEnabled },
+                        set: { nm.globalEnabled = $0; nm.rescheduleAll(allItems) }
+                    )) { EmptyView() }
+                    .toggleStyle(.switch)
+                    .tint(accent)
+                    .labelsHidden()
+                }
+
+                Divider().padding(.horizontal, 20)
+
+                // Mute / DND
+                SettingsRow(
+                    icon: "moon.fill",
+                    title: LocalizedStringKey("settings.notif.mute.title"),
+                    desc: LocalizedStringKey("settings.notif.mute.desc")
+                ) {
+                    if let until = nm.muteUntil {
+                        HStack {
+                            Label(muteLabel(until), systemImage: "moon.fill")
+                                .font(.system(size: 12))
+                                .foregroundStyle(accent)
+                            Spacer()
+                            Button(LocalizedStringKey("settings.notif.mute.unmute")) {
+                                nm.muteUntil = nil
+                                nm.rescheduleAll(allItems)
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        }
+                    } else {
+                        HStack(spacing: 8) {
+                            ForEach(MuteDuration.allCases) { d in
+                                Button(d.label) {
+                                    nm.muteUntil = d.until
+                                    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                            }
+                        }
+                    }
+                }
+
+                if !groups.isEmpty {
+                    Divider().padding(.horizontal, 20)
+
+                    // Per-group filtering
+                    SettingsRow(
+                        icon: "folder",
+                        title: LocalizedStringKey("settings.notif.groups.title"),
+                        desc: LocalizedStringKey("settings.notif.groups.desc")
+                    ) {
+                        VStack(spacing: 4) {
+                            ForEach(groups) { group in
+                                let muted = nm.mutedGroupIDs.contains(group.id.uuidString)
+                                HStack {
+                                    Image(systemName: "folder")
+                                        .font(.system(size: 12))
+                                        .foregroundStyle(muted ? .secondary : accent)
+                                    Text(group.name)
+                                        .font(.system(size: 13))
+                                        .foregroundStyle(muted ? .secondary : .primary)
+                                    Spacer()
+                                    Toggle("", isOn: Binding(
+                                        get: { !nm.mutedGroupIDs.contains(group.id.uuidString) },
+                                        set: { enabled in
+                                            var ids = nm.mutedGroupIDs
+                                            if enabled { ids.remove(group.id.uuidString) }
+                                            else { ids.insert(group.id.uuidString) }
+                                            nm.mutedGroupIDs = ids
+                                            nm.rescheduleAll(allItems)
+                                        }
+                                    ))
+                                    .toggleStyle(.switch)
+                                    .tint(accent)
+                                    .labelsHidden()
+                                }
+                                .padding(.vertical, 3)
+                            }
+                        }
+                    }
+                }
+
+                Spacer(minLength: 20)
+            }
+            .padding(.vertical, 8)
+        }
+        .frame(minHeight: 260)
+        .onAppear { Task { await nm.refreshAuthStatus() } }
+    }
+
+    private func muteLabel(_ until: Date) -> String {
+        let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none
+        return String(format: NSLocalizedString("settings.notif.mute.until", comment: ""), f.string(from: until))
     }
 }
 

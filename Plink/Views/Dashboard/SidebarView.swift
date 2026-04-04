@@ -4,6 +4,7 @@ import SwiftData
 struct SidebarView: View {
     @Binding var groupFilter: GroupFilter
     @Binding var showTrash: Bool
+    @Binding var showActivityLog: Bool
     @Query(sort: \TodoGroup.name) private var groups: [TodoGroup]
     @Query private var allItems: [TodoItem]
     @Environment(\.modelContext) private var ctx
@@ -11,7 +12,10 @@ struct SidebarView: View {
     @State private var newGroupName = ""
     @State private var isAdding = false
     @State private var groupPendingDelete: TodoGroup? = nil
+    @State private var groupPendingRename: TodoGroup? = nil
+    @State private var renameText = ""
     @FocusState private var fieldFocused: Bool
+    @FocusState private var renameFocused: Bool
     @Environment(\.appAccent) private var accent
 
     private var trashCount: Int { allItems.filter { $0.isDeleted || $0.isCompleted }.count }
@@ -47,9 +51,9 @@ struct SidebarView: View {
             SidebarRow(
                 label: NSLocalizedString("group.allTasks", comment: ""),
                 icon: "tray.full",
-                isSelected: groupFilter == .all
+                isSelected: groupFilter == .all && !showTrash && !showActivityLog
             ) {
-                groupFilter = .all; showTrash = false
+                groupFilter = .all; showTrash = false; showActivityLog = false
             }
 
             Divider().padding(.horizontal, 12).padding(.vertical, 6)
@@ -58,28 +62,54 @@ struct SidebarView: View {
             SidebarRow(
                 label: NSLocalizedString("group.unassigned", comment: ""),
                 icon: "tray",
-                isSelected: groupFilter == .unassigned,
+                isSelected: groupFilter == .unassigned && !showTrash && !showActivityLog,
                 openCount: openCount(for: .unassigned),
                 overdueCount: overdueCount(for: .unassigned)
             ) {
-                groupFilter = .unassigned; showTrash = false
+                groupFilter = .unassigned; showTrash = false; showActivityLog = false
             }
 
             if !groups.isEmpty {
                 Divider().padding(.horizontal, 12).padding(.vertical, 6)
                 ForEach(groups) { group in
-                    SidebarRow(
-                        label: group.name,
-                        icon: "folder",
-                        isSelected: groupFilter == .group(group),
-                        openCount: openCount(for: .group(group)),
-                        overdueCount: overdueCount(for: .group(group))
-                    ) {
-                        groupFilter = .group(group); showTrash = false
-                    }
-                    .contextMenu {
-                        Button("action.delete", role: .destructive) {
-                            groupPendingDelete = group
+                    if groupPendingRename?.id == group.id {
+                        // Inline rename field
+                        HStack(spacing: 6) {
+                            Image(systemName: "folder")
+                                .font(.system(size: 13))
+                                .foregroundStyle(accent)
+                                .frame(width: 20)
+                            TextField("", text: $renameText)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 13))
+                                .focused($renameFocused)
+                                .onSubmit { commitRename() }
+                                .onExitCommand { groupPendingRename = nil }
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                    } else {
+                        SidebarRow(
+                            label: group.name,
+                            icon: "folder",
+                            isSelected: groupFilter == .group(group),
+                            openCount: openCount(for: .group(group)),
+                            overdueCount: overdueCount(for: .group(group))
+                        ) {
+                            groupFilter = .group(group); showTrash = false; showActivityLog = false
+                        }
+                        .contextMenu {
+                            Button("action.rename") {
+                                renameText = group.name
+                                groupPendingRename = group
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                    renameFocused = true
+                                }
+                            }
+                            Divider()
+                            Button("action.delete", role: .destructive) {
+                                groupPendingDelete = group
+                            }
                         }
                     }
                 }
@@ -118,6 +148,15 @@ struct SidebarView: View {
 
             Divider().padding(.horizontal, 12).padding(.bottom, 4)
 
+            // Activity Log row
+            SidebarRow(
+                label: NSLocalizedString("activitylog.title", comment: ""),
+                icon: "chart.bar.doc.horizontal",
+                isSelected: showActivityLog
+            ) {
+                showActivityLog = true; showTrash = false; groupFilter = .all
+            }
+
             // Trash row
             HStack(spacing: 8) {
                 Image(systemName: "trash")
@@ -145,7 +184,7 @@ struct SidebarView: View {
                     .padding(.horizontal, 6)
             )
             .contentShape(Rectangle())
-            .onTapGesture { showTrash = true; groupFilter = .all }
+            .onTapGesture { showTrash = true; showActivityLog = false; groupFilter = .all }
 
             // Settings row
             SidebarRow(
@@ -182,6 +221,12 @@ struct SidebarView: View {
                 Text(String(format: NSLocalizedString("group.delete.confirm.message", comment: ""), group.name, taskSuffix))
             }
         }
+    }
+
+    private func commitRename() {
+        let name = renameText.trimmingCharacters(in: .whitespaces)
+        if !name.isEmpty { groupPendingRename?.name = name }
+        groupPendingRename = nil
     }
 
     private func commitGroup() {

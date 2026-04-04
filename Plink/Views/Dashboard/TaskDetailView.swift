@@ -12,7 +12,7 @@ struct TaskDetailView: View {
     @State private var title: String
     @State private var desc: String
     @State private var priority: Priority
-    @State private var dateSelection: DateSelection
+    @State private var dueDate: Date?
     @State private var selectedGroup: TodoGroup?
     @State private var links: [String]
     @State private var locationAddress: String
@@ -20,34 +20,13 @@ struct TaskDetailView: View {
     @State private var pendingAttachments: [(name: String, path: String, uti: String)] = []
     @State private var removedAttachmentIDs: Set<UUID> = []
 
+    @State private var hasDueTime: Bool
+    @State private var dueTime: Date
+
     @State private var discardChanges = false
-    @State private var showDatePicker = false
     @State private var showFilePicker = false
     @FocusState private var titleFocused: Bool
     @FocusState private var descFocused: Bool
-
-    enum DateSelection: Equatable {
-        case none, today, tomorrow, custom(Date)
-        var date: Date? {
-            switch self {
-            case .none:          return nil
-            case .today:         return .today
-            case .tomorrow:      return .tomorrow
-            case .custom(let d): return d
-            }
-        }
-        static func from(_ date: Date?) -> DateSelection {
-            guard let date else { return .none }
-            let cal = Calendar.current
-            if cal.isDateInToday(date)     { return .today }
-            if cal.isDateInTomorrow(date)  { return .tomorrow }
-            return .custom(date)
-        }
-    }
-
-    private static let chipDateFormatter: DateFormatter = {
-        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .none; return f
-    }()
 
     init(item: TodoItem, onClose: @escaping () -> Void) {
         self.item    = item
@@ -55,11 +34,13 @@ struct TaskDetailView: View {
         _title           = State(initialValue: item.title)
         _desc            = State(initialValue: item.desc)
         _priority        = State(initialValue: item.priority)
-        _dateSelection   = State(initialValue: .from(item.dueDate))
+        _dueDate         = State(initialValue: item.dueDate.map { Calendar.current.startOfDay(for: $0) })
         _selectedGroup   = State(initialValue: item.group)
         _links           = State(initialValue: item.links)
         _locationAddress = State(initialValue: item.locationAddress)
         _blockingStatus  = State(initialValue: item.blockingStatus ?? .none)
+        _hasDueTime      = State(initialValue: item.hasDueTime)
+        _dueTime         = State(initialValue: item.dueDate ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date())
     }
 
     var body: some View {
@@ -140,31 +121,8 @@ struct TaskDetailView: View {
 
                     // ── Attribute chips ────────────────────────────
                     VStack(alignment: .leading, spacing: 10) {
-                        // Date
-                        HStack(spacing: 8) {
-                            DetailChip(label: NSLocalizedString("task.date.today", comment: ""), icon: "sun.max", active: dateSelection == .today) {
-                                dateSelection = dateSelection == .today ? .none : .today
-                            }
-                            DetailChip(label: NSLocalizedString("task.date.tomorrow", comment: ""), icon: "sunrise", active: dateSelection == .tomorrow) {
-                                dateSelection = dateSelection == .tomorrow ? .none : .tomorrow
-                            }
-                            DetailChip(
-                                label: {
-                                    if case .custom(let d) = dateSelection { return Self.chipDateFormatter.string(from: d) }
-                                    return NSLocalizedString("task.date.custom", comment: "")
-                                }(),
-                                icon: "calendar",
-                                active: { if case .custom = dateSelection { return true }; return showDatePicker }()
-                            ) { showDatePicker.toggle() }
-                            .popover(isPresented: $showDatePicker, arrowEdge: .bottom) {
-                                MiniCalendarPicker(
-                                    selected: Binding(
-                                        get: { if case .custom(let d) = dateSelection { return d }; return .today },
-                                        set: { dateSelection = .custom($0) }
-                                    )
-                                ) { showDatePicker = false }
-                            }
-                        }
+                        // Date + time
+                        DateTimePickerRow(date: $dueDate, hasDueTime: $hasDueTime, dueTime: $dueTime)
 
                         // Blocking status
                         HStack(spacing: 8) {
@@ -309,8 +267,22 @@ struct TaskDetailView: View {
         item.title           = t
         item.desc            = desc
         item.priority        = priority
-        item.dueDate         = dateSelection.date
         item.group           = selectedGroup
+
+        // Combine date + optional time
+        item.dueDate = dueDate.map { base in
+            guard hasDueTime else { return base }
+            let c = Calendar.current.dateComponents([.hour, .minute], from: dueTime)
+            return Calendar.current.date(bySettingHour: c.hour ?? 9, minute: c.minute ?? 0, second: 0, of: base) ?? base
+        }
+        item.hasDueTime = dueDate != nil && hasDueTime
+
+        // Schedule or cancel notification
+        if item.hasDueTime {
+            NotificationManager.shared.schedule(for: item)
+        } else {
+            NotificationManager.shared.cancel(for: item)
+        }
         item.links           = links
         item.locationAddress = locationAddress
         item.blockingStatus  = blockingStatus == .none ? nil : blockingStatus
@@ -322,6 +294,12 @@ struct TaskDetailView: View {
         }
         if item.isCompleted && item.completedAt == nil { item.completedAt = Date() }
     }
+}
+
+private extension DateFormatter {
+    static let shortTime: DateFormatter = {
+        let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f
+    }()
 }
 
 // MARK: – Blocking Chip

@@ -23,12 +23,14 @@ private func loc(_ key: String) -> String { NSLocalizedString(key, comment: "") 
 
 extension HelpTopic {
     // Computed so strings are re-evaluated after language change
-    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, search, trash, settings, shortcuts, backup] }
+    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, notifications, search, trash, settings, shortcuts, backup, activityLog] }
 
     static var dashboard: HelpTopic { HelpTopic(
         id: "dashboard", icon: "square.grid.2x2", title: loc("help.dashboard.title"),
         sections: [
             .init(id: "d1", heading: loc("help.dashboard.s1.heading"), body: loc("help.dashboard.s1.body")),
+            .init(id: "d5", heading: loc("help.dashboard.s5.heading"), body: loc("help.dashboard.s5.body"),
+                  tip: loc("help.dashboard.s5.tip")),
             .init(id: "d2", heading: loc("help.dashboard.s2.heading"), body: loc("help.dashboard.s2.body"),
                   tip: loc("help.dashboard.s2.tip")),
             .init(id: "d3", heading: loc("help.dashboard.s3.heading"), body: loc("help.dashboard.s3.body")),
@@ -63,11 +65,24 @@ extension HelpTopic {
         ]
     )}
 
+    static var notifications: HelpTopic { HelpTopic(
+        id: "notifications", icon: "bell.badge", title: loc("help.notif.title"),
+        sections: [
+            .init(id: "n1", heading: loc("help.notif.s1.heading"), body: loc("help.notif.s1.body")),
+            .init(id: "n2", heading: loc("help.notif.s2.heading"), body: loc("help.notif.s2.body"),
+                  tip: loc("help.notif.s2.tip")),
+            .init(id: "n3", heading: loc("help.notif.s3.heading"), body: loc("help.notif.s3.body")),
+            .init(id: "n4", heading: loc("help.notif.s4.heading"), body: loc("help.notif.s4.body"),
+                  tip: loc("help.notif.s4.tip")),
+        ]
+    )}
+
     static var groups: HelpTopic { HelpTopic(
         id: "groups", icon: "folder", title: loc("help.groups.title"),
         sections: [
             .init(id: "g1", heading: loc("help.groups.s1.heading"), body: loc("help.groups.s1.body")),
             .init(id: "g2", heading: loc("help.groups.s2.heading"), body: loc("help.groups.s2.body")),
+            .init(id: "g6", heading: loc("help.groups.s6.heading"), body: loc("help.groups.s6.body")),
             .init(id: "g3", heading: loc("help.groups.s3.heading"), body: loc("help.groups.s3.body")),
             .init(id: "g4", heading: loc("help.groups.s4.heading"), body: loc("help.groups.s4.body"),
                   tip: loc("help.groups.s4.tip")),
@@ -126,6 +141,16 @@ extension HelpTopic {
             .init(id: "b2", heading: loc("help.backup.s2.heading"), body: loc("help.backup.s2.body"),
                   tip: loc("help.backup.s2.tip")),
             .init(id: "b3", heading: loc("help.backup.s3.heading"), body: loc("help.backup.s3.body"))
+        ]
+    )}
+
+    static var activityLog: HelpTopic { HelpTopic(
+        id: "activitylog", icon: "chart.bar.doc.horizontal", title: loc("help.activitylog.title"),
+        sections: [
+            .init(id: "al1", heading: loc("help.activitylog.s1.heading"), body: loc("help.activitylog.s1.body")),
+            .init(id: "al2", heading: loc("help.activitylog.s2.heading"), body: loc("help.activitylog.s2.body")),
+            .init(id: "al3", heading: loc("help.activitylog.s3.heading"), body: loc("help.activitylog.s3.body"),
+                  tip: loc("help.activitylog.s3.tip"))
         ]
     )}
 }

@@ -13,7 +13,8 @@ struct AddTaskSheet: View {
     @State private var desc = ""
     @State private var priority: Priority = .none
     @State private var dueDate: Date? = nil
-    @State private var hasDueDate = false
+    @State private var hasDueTime = false
+    @State private var dueTime: Date = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var selectedGroup: TodoGroup? = nil
     @State private var smartMode: Bool
     @State private var links: [String] = []
@@ -95,9 +96,8 @@ struct AddTaskSheet: View {
                 .padding(.top, 10)
             }
 
-            // Attributes row 1: priority / due date toggle / group
+            // Attributes row 1: priority / group
             HStack(spacing: 12) {
-                // Priority picker
                 Menu {
                     ForEach(Priority.allCases, id: \.self) { p in
                         Button {
@@ -114,25 +114,8 @@ struct AddTaskSheet: View {
                 .menuStyle(.borderlessButton)
                 .fixedSize()
 
-                Divider().frame(height: 16)
-
-                // Due date toggle
-                Button {
-                    withAnimation(.easeInOut(duration: 0.18)) {
-                        hasDueDate.toggle()
-                        if hasDueDate { dueDate = Calendar.current.startOfDay(for: Date()) }
-                    }
-                } label: {
-                    Label(LocalizedStringKey("task.dueDate"), systemImage: "calendar")
-                        .font(.system(size: 12))
-                        .foregroundStyle(hasDueDate ? accent : .secondary)
-                }
-                .buttonStyle(.borderless)
-
-                Divider().frame(height: 16)
-
-                // Group picker
                 if !groups.isEmpty {
+                    Divider().frame(height: 16)
                     Menu {
                         Button(LocalizedStringKey("group.allTasks")) { selectedGroup = nil }
                         Divider()
@@ -152,40 +135,12 @@ struct AddTaskSheet: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
-            .padding(.bottom, hasDueDate ? 6 : 10)
+            .padding(.bottom, 6)
 
-            // Attributes row 2: date picker (expands below when toggled)
-            if hasDueDate {
-                HStack(spacing: 10) {
-                    DatePicker("", selection: Binding(
-                        get: { dueDate ?? Date() },
-                        set: { dueDate = $0 }
-                    ), displayedComponents: .date)
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-
-                    Divider().frame(height: 16)
-
-                    Button("section.today") {
-                        dueDate = Calendar.current.startOfDay(for: Date())
-                    }
-                    .buttonStyle(.borderless)
-                    .font(.system(size: 12))
-                    .foregroundStyle(accent)
-
-                    Button("section.tomorrow") {
-                        dueDate = Calendar.current.date(byAdding: .day, value: 1, to: Calendar.current.startOfDay(for: Date()))
-                    }
-                    .buttonStyle(.borderless)
-                    .font(.system(size: 12))
-                    .foregroundStyle(accent)
-
-                    Spacer()
-                }
+            // Attributes row 2: date + time
+            DateTimePickerRow(date: $dueDate, hasDueTime: $hasDueTime, dueTime: $dueTime)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 10)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
 
             // Extras (manual mode only)
             if !smartMode {
@@ -251,19 +206,37 @@ struct AddTaskSheet: View {
         let t = title.trimmingCharacters(in: .whitespaces)
         guard !t.isEmpty else { return }
         if smartMode {
+            let manualDate: Date? = dueDate.map { base in
+                guard hasDueTime else { return base }
+                let c = Calendar.current.dateComponents([.hour, .minute], from: dueTime)
+                return Calendar.current.date(bySettingHour: c.hour ?? 9, minute: c.minute ?? 0, second: 0, of: base) ?? base
+            }
+            let manualHasDueTime = dueDate != nil && hasDueTime
             dismiss()
             Task {
                 let result = await SmartInputParser.parse(t)
                 await MainActor.run {
-                    ctx.insert(TodoItem(title: result.title, desc: result.desc, priority: result.priority, dueDate: result.dueDate, group: selectedGroup))
+                    // Manual date overrides parser date when explicitly set
+                    let finalDate = manualDate ?? result.dueDate
+                    let item = TodoItem(title: result.title, desc: result.desc, priority: result.priority, dueDate: finalDate, group: selectedGroup)
+                    item.hasDueTime = manualHasDueTime
+                    ctx.insert(item)
+                    NotificationManager.shared.schedule(for: item)
                 }
             }
         } else {
-            let item = TodoItem(title: t, desc: desc, priority: priority, dueDate: hasDueDate ? (dueDate ?? Date()) : nil, group: selectedGroup)
+            let finalDueDate: Date? = dueDate.map { base in
+                guard hasDueTime else { return base }
+                let c = Calendar.current.dateComponents([.hour, .minute], from: dueTime)
+                return Calendar.current.date(bySettingHour: c.hour ?? 9, minute: c.minute ?? 0, second: 0, of: base) ?? base
+            }
+            let item = TodoItem(title: t, desc: desc, priority: priority, dueDate: finalDueDate, group: selectedGroup)
+            item.hasDueTime = dueDate != nil && hasDueTime
             item.links = links
             item.locationAddress = locationAddress
             item.blockingStatus = blockingStatus == .none ? nil : blockingStatus
             ctx.insert(item)
+            NotificationManager.shared.schedule(for: item)
             for att in pendingAttachments {
                 let attachment = TaskAttachment(filename: att.name, filePath: att.path, typeIdentifier: att.uti)
                 ctx.insert(attachment)

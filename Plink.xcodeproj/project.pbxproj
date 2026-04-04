@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F6A7B8C9D0E1F2A3B4C5D6E7 /* TimePresetRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */; };
+		76AC9D45C2CA4459A6E63BDA /* DateTimePickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94956C651AE54037A83D5717 /* DateTimePickerRow.swift */; };
+		317354FD838746D2913C5818 /* StatsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */; };
+		915508D027604B58880B625B /* ActivityLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADEC09A72D48AAABF78552 /* ActivityLogView.swift */; };
 		041B589C0A86D00BEE0DF7F4 /* MiniCalendarPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0879455978FFD647E25E672D /* MiniCalendarPicker.swift */; };
 		14CB7AC913F2DEB4E81F0894 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D8B4167CA98D0B5B37E87F /* AppState.swift */; };
 		14FE6A18741442CAD5B57AA7 /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A767F63DB37A146593994D /* TrashView.swift */; };
@@ -37,11 +41,14 @@
 		E64ABFD807AB42A13D470864 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F0ABF3C045182A4CB2A48E /* SettingsView.swift */; };
 		F227AEA972E653280D73A4DC /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0AA15442F77B9C82ECC05 /* DashboardViewModel.swift */; };
 		F3AD3175BE3510E25A67169B /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */; };
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F6A7B8C9D0E1F2A3B4 /* NotificationManager.swift */; };
 		B2C3D4E5F6A7B8C9D0E1F2A3 /* BackupManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */; };
 		F8FFFB8526FECCEEB1CB59FA /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8FB49D0FFEEA5F8588E6B0 /* StatusBarController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimePresetRow.swift; sourceTree = "<group>"; };
+		94956C651AE54037A83D5717 /* DateTimePickerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimePickerRow.swift; sourceTree = "<group>"; };
 		0879455978FFD647E25E672D /* MiniCalendarPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniCalendarPicker.swift; sourceTree = "<group>"; };
 		089956EA6DAC87994CD7DE46 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
 		12258557F23E4D54AF4CAC2A /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
@@ -57,6 +64,7 @@
 		6BDD4CAC56CC42B047D107CF /* QuickAddPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickAddPanelController.swift; sourceTree = "<group>"; };
 		6E58CB1E6F135493B1D0A607 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManager.swift; sourceTree = "<group>"; };
 		6F9B9C8851166A2167379856 /* SmartInputParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartInputParser.swift; sourceTree = "<group>"; };
 		70616E3B0C1EE5243D584032 /* Plink-Dev.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Plink-Dev.entitlements"; sourceTree = "<group>"; };
@@ -68,11 +76,13 @@
 		B2F0ABF3C045182A4CB2A48E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B40F59F507071F28A3201E4A /* Plink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Plink.entitlements; sourceTree = "<group>"; };
 		C3A767F63DB37A146593994D /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
+		CBADEC09A72D48AAABF78552 /* ActivityLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityLogView.swift; sourceTree = "<group>"; };
 		CC46B4F613C06171E0350829 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		CD8FB49D0FFEEA5F8588E6B0 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		D78814E0D77878B402431FCF /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
 		E84E3CEE3E3C1D6F7523493C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		EB128DB77D1C62ABB46EDD07 /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
+		9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsHeaderView.swift; sourceTree = "<group>"; };
 		EEDB85A982FF6F16EFCEA5A5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F1D8B4167CA98D0B5B37E87F /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		F4C0AA15442F77B9C82ECC05 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
@@ -102,8 +112,17 @@
 				6B6097C9BA07A1F47BB111A8 /* QuickAdd */,
 				427FD5318E56C378D15A7F73 /* Shared */,
 				C4272B664F1344D1676CC022 /* Trash */,
+				716A8B4E06EA4E29B8919DD7 /* ActivityLog */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		716A8B4E06EA4E29B8919DD7 /* ActivityLog */ = {
+			isa = PBXGroup;
+			children = (
+				CBADEC09A72D48AAABF78552 /* ActivityLogView.swift */,
+			);
+			path = ActivityLog;
 			sourceTree = "<group>";
 		};
 		214303C545054A5EF86379FE /* Models */ = {
@@ -123,6 +142,7 @@
 				9DB8E2140BAD62FE585F917C /* Localizable.xcstrings */,
 				6F66FE8C797B7B1BC9B0DF09 /* PersistenceController.swift */,
 				A1B2C3D4E5F6A7B8C9D0E1F2 /* BackupManager.swift */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* NotificationManager.swift */,
 				6BDD4CAC56CC42B047D107CF /* QuickAddPanelController.swift */,
 				1263C98D51BA453E7B525563 /* ShortcutNames.swift */,
 				6F9B9C8851166A2167379856 /* SmartInputParser.swift */,
@@ -152,6 +172,8 @@
 			isa = PBXGroup;
 			children = (
 				0879455978FFD647E25E672D /* MiniCalendarPicker.swift */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* TimePresetRow.swift */,
+				94956C651AE54037A83D5717 /* DateTimePickerRow.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -212,6 +234,7 @@
 				55185B06631D11CBA2D88D18 /* AddTaskSheet.swift */,
 				6AD11A64818C4278D8C7BB70 /* DashboardView.swift */,
 				EB128DB77D1C62ABB46EDD07 /* SectionHeaderView.swift */,
+				9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */,
 				A4409234FA71DAF9C747A4FA /* SidebarView.swift */,
 				5AF6B5CEC28FD36794E7EEE2 /* TaskDetailView.swift */,
 				2AFA8F4A6FE30E7B1BC85372 /* TaskRowView.swift */,
@@ -315,13 +338,17 @@
 				8BE728A048EEBD25B9F9B472 /* HelpView.swift in Sources */,
 				3FA90453A70252C4EB234E27 /* LanguageManager.swift in Sources */,
 				041B589C0A86D00BEE0DF7F4 /* MiniCalendarPicker.swift in Sources */,
+				F6A7B8C9D0E1F2A3B4C5D6E7 /* TimePresetRow.swift in Sources */,
+				76AC9D45C2CA4459A6E63BDA /* DateTimePickerRow.swift in Sources */,
 				B4EBA746BDE7B058DF48CDA1 /* OnboardingView.swift in Sources */,
 				F3AD3175BE3510E25A67169B /* PersistenceController.swift in Sources */,
 				B2C3D4E5F6A7B8C9D0E1F2A3 /* BackupManager.swift in Sources */,
+				D4E5F6A7B8C9D0E1F2A3B4C5 /* NotificationManager.swift in Sources */,
 				AC3D079B5F11E349D3164C30 /* PlinkApp.swift in Sources */,
 				E44643CD8F13EC352B548C87 /* QuickAddPanelController.swift in Sources */,
 				866F640F2F2932E2DB7C8548 /* QuickAddView.swift in Sources */,
 				BC7E81FC645BE6E6AC0653C5 /* SectionHeaderView.swift in Sources */,
+				317354FD838746D2913C5818 /* StatsHeaderView.swift in Sources */,
 				E64ABFD807AB42A13D470864 /* SettingsView.swift in Sources */,
 				CE0E572371576BE702783CC3 /* ShortcutNames.swift in Sources */,
 				1AAF7911429C7378AE730A97 /* SidebarView.swift in Sources */,
@@ -334,6 +361,7 @@
 				9C5F7D17E46A92ED4ADF3252 /* TodoGroup.swift in Sources */,
 				83639844EC0C6A558ADC9B62 /* TodoItem.swift in Sources */,
 				14FE6A18741442CAD5B57AA7 /* TrashView.swift in Sources */,
+				915508D027604B58880B625B /* ActivityLogView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

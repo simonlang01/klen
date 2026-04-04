@@ -8,23 +8,12 @@ struct QuickAddView: View {
     @Environment(\.appAccent) private var accent
     @Query(sort: \TodoGroup.name) private var groups: [TodoGroup]
 
-    enum DateSelection: Equatable {
-        case none, today, tomorrow, custom(Date)
-        var date: Date? {
-            switch self {
-            case .none:           return nil
-            case .today:          return .today
-            case .tomorrow:       return .tomorrow
-            case .custom(let d):  return d
-            }
-        }
-    }
-
     @State private var title = ""
     @State private var selectedGroup: TodoGroup? = nil
-    @State private var dateSelection: DateSelection = .none
+    @State private var dueDate: Date? = nil
+    @State private var hasDueTime = false
+    @State private var dueTime: Date = Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var priority: Priority = .none
-    @State private var showDatePicker = false
     @State private var smartMode: Bool
     @FocusState private var focused: Bool
 
@@ -35,13 +24,6 @@ struct QuickAddView: View {
         self.onDismiss = onDismiss
         _smartMode = State(initialValue: smartInputEnabled)
     }
-
-    private static let chipDateFormatter: DateFormatter = {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .none
-        return f
-    }()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -62,42 +44,17 @@ struct QuickAddView: View {
 
             Divider()
 
+            // Date + time row (manual mode only)
+            if !smartMode {
+                DateTimePickerRow(date: $dueDate, hasDueTime: $hasDueTime, dueTime: $dueTime)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 10)
+                    .padding(.bottom, 2)
+            }
+
             // Action row
             HStack(spacing: 8) {
                 if !smartMode {
-                    QuickAddChip(label: NSLocalizedString("task.date.today", comment: ""), icon: "sun.max", active: dateSelection == .today) {
-                        dateSelection = .today
-                    }
-                    QuickAddChip(label: NSLocalizedString("task.date.tomorrow", comment: ""), icon: "sunrise", active: dateSelection == .tomorrow) {
-                        dateSelection = .tomorrow
-                    }
-
-                    QuickAddChip(
-                        label: {
-                            if case .custom(let d) = dateSelection {
-                                return Self.chipDateFormatter.string(from: d)
-                            }
-                            return NSLocalizedString("task.dueDate", comment: "")
-                        }(),
-                        icon: "calendar",
-                        active: { if case .custom = dateSelection { return true }; return showDatePicker }()
-                    ) {
-                        showDatePicker.toggle()
-                    }
-                    .popover(isPresented: $showDatePicker, arrowEdge: .bottom) {
-                        MiniCalendarPicker(selected: Binding(
-                            get: {
-                                if case .custom(let d) = dateSelection { return d }
-                                return .today
-                            },
-                            set: { dateSelection = .custom($0) }
-                        )) {
-                            showDatePicker = false
-                        }
-                    }
-
-                    Divider().frame(height: 14)
-
                     Menu {
                         ForEach(Priority.allCases, id: \.self) { p in
                             Button {
@@ -138,8 +95,6 @@ struct QuickAddView: View {
                         .menuStyle(.borderlessButton)
                         .fixedSize()
                     }
-
-                    Divider().frame(height: 14)
                 } else {
                     // Smart mode hint
                     HStack(spacing: 4) {
@@ -158,7 +113,8 @@ struct QuickAddView: View {
                     Button {
                         smartMode.toggle()
                         if !smartMode {
-                            dateSelection = .none
+                            dueDate = nil
+                            hasDueTime = false
                             priority = .none
                         }
                     } label: {
@@ -209,7 +165,18 @@ struct QuickAddView: View {
                 }
             }
         } else {
-            submit(dueDate: dateSelection.date)
+            let finalDate: Date? = dueDate.map { base in
+                guard hasDueTime else { return base }
+                let c = Calendar.current.dateComponents([.hour, .minute], from: dueTime)
+                return Calendar.current.date(bySettingHour: c.hour ?? 9, minute: c.minute ?? 0, second: 0, of: base) ?? base
+            }
+            let t = title.trimmingCharacters(in: .whitespaces)
+            guard !t.isEmpty else { return }
+            let item = TodoItem(title: t, priority: priority, dueDate: finalDate, group: selectedGroup)
+            item.hasDueTime = dueDate != nil && hasDueTime
+            ctx.insert(item)
+            NotificationManager.shared.schedule(for: item)
+            onDismiss()
         }
     }
 

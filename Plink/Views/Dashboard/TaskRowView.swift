@@ -12,6 +12,7 @@ struct TaskRowView: View {
 
     private var isOverdue: Bool {
         guard let due = item.dueDate else { return false }
+        if item.hasDueTime { return due < Date() && !item.isCompleted }
         return due < Calendar.current.startOfDay(for: Date()) && !item.isCompleted
     }
 
@@ -60,9 +61,15 @@ struct TaskRowView: View {
                             .foregroundStyle(.tertiary)
                     }
                     if let due = item.dueDate {
-                        Text(due, style: .date)
-                            .font(.system(size: 12))
-                            .foregroundStyle(isOverdue ? AnyShapeStyle(Color.red.opacity(0.8)) : AnyShapeStyle(.tertiary))
+                        HStack(spacing: 3) {
+                            Text(due, style: .date)
+                            if item.hasDueTime {
+                                Text("·").opacity(0.5)
+                                Text(due, style: .time)
+                            }
+                        }
+                        .font(.system(size: 12))
+                        .foregroundStyle(isOverdue ? AnyShapeStyle(Color.red.opacity(0.8)) : AnyShapeStyle(.tertiary))
                     }
                     if let group = item.group {
                         Text(group.name)

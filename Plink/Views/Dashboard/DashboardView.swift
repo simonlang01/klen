@@ -10,6 +10,7 @@ struct DashboardView: View {
     @State private var showAddSheet = false
     @State private var showTrash = false
     @State private var showHelp = false
+    @State private var showActivityLog = false
     @State private var selectedItem: TodoItem?
     private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     @State private var tick = false
@@ -17,18 +18,28 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarView(groupFilter: $vm.groupFilter, showTrash: $showTrash)
+            SidebarView(groupFilter: $vm.groupFilter, showTrash: $showTrash, showActivityLog: $showActivityLog)
                 .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
         } detail: {
             HStack(spacing: 0) {
-                // ── Task list ──────────────────────────────────────
+                // ── Task list or activity log ──────────────────────
                 Group {
-                    if showTrash { TrashView() } else { taskList }
+                    if showTrash {
+                        TrashView()
+                    } else if showActivityLog {
+                        ActivityLogView()
+                    } else {
+                        VStack(spacing: 0) {
+                            StatsHeaderView(stats: vm.stats(from: allItems))
+                            Divider()
+                            taskList
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // ── Inline detail panel ────────────────────────────
-                if let item = selectedItem {
+                if let item = selectedItem, !showTrash, !showActivityLog {
                     Divider()
                     TaskDetailView(item: item, onClose: { selectedItem = nil })
                         .frame(width: 420)
@@ -44,6 +55,8 @@ struct DashboardView: View {
             HelpView()
                 .environment(\.appAccent, appState.accentOption.color)
         }
+        .onChange(of: showTrash) { if $1 { showActivityLog = false } }
+        .onChange(of: showActivityLog) { if $1 { showTrash = false } }
         .sheet(isPresented: $showAddSheet) {
             let preselectedGroup: TodoGroup? = {
                 if case .group(let g) = vm.groupFilter { return g }

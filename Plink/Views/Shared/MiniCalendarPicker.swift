@@ -40,9 +40,10 @@ struct MiniCalendarPicker: View {
                 .foregroundStyle(.secondary)
             }
 
+            let syms = weekdaySymbols()
             LazyVGrid(columns: columns, spacing: 0) {
-                ForEach(weekdaySymbols(), id: \.self) { sym in
-                    Text(sym)
+                ForEach(syms.indices, id: \.self) { i in
+                    Text(syms[i])
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.tertiary)
                         .frame(height: 24)

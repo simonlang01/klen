@@ -11,23 +11,36 @@ struct SectionHeaderView: View {
         return section.label
     }
 
+    private var sectionColor: Color {
+        switch section {
+        case .overdue:           return .red.opacity(0.75)
+        case .recentlyCompleted: return accent.opacity(0.7)
+        default:                 return .secondary
+        }
+    }
+
+    private var icon: String? {
+        switch section {
+        case .overdue:           return "exclamationmark.circle.fill"
+        case .recentlyCompleted: return "checkmark.circle.fill"
+        case .today:             return "sun.max.fill"
+        case .tomorrow:          return "sunrise.fill"
+        case .next7Days:         return "calendar"
+        case .later:             return "ellipsis.circle"
+        case .noDate:            return "tray"
+        }
+    }
+
     var body: some View {
         HStack(spacing: 6) {
-            if section == .overdue {
-                Image(systemName: "exclamationmark.circle.fill")
+            if let icon {
+                Image(systemName: icon)
                     .font(.system(size: 11))
-                    .foregroundStyle(.red.opacity(0.75))
-            } else if section == .recentlyCompleted {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 11))
-                    .foregroundStyle(accent.opacity(0.7))
+                    .foregroundStyle(sectionColor)
             }
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(
-                    section == .overdue           ? Color.red.opacity(0.75) :
-                    section == .recentlyCompleted ? accent.opacity(0.7) : .secondary
-                )
+                .foregroundStyle(sectionColor)
                 .textCase(.uppercase)
                 .tracking(0.5)
             Text("\(count)")
