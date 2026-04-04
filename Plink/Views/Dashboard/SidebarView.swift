@@ -7,6 +7,7 @@ struct SidebarView: View {
     @Query(sort: \TodoGroup.name) private var groups: [TodoGroup]
     @Query private var allItems: [TodoItem]
     @Environment(\.modelContext) private var ctx
+    @Environment(\.openSettings) private var openSettings
     @State private var newGroupName = ""
     @State private var isAdding = false
     @State private var groupPendingDelete: TodoGroup? = nil
@@ -145,6 +146,15 @@ struct SidebarView: View {
             )
             .contentShape(Rectangle())
             .onTapGesture { showTrash = true; groupFilter = .all }
+
+            // Settings row
+            SidebarRow(
+                label: NSLocalizedString("sidebar.settings", comment: ""),
+                icon: "gearshape",
+                isSelected: false
+            ) {
+                openSettings()
+            }
             .padding(.bottom, 8)
         }
         .padding(.top, 12)

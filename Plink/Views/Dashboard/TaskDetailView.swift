@@ -24,6 +24,7 @@ struct TaskDetailView: View {
     @State private var showDatePicker = false
     @State private var showFilePicker = false
     @FocusState private var titleFocused: Bool
+    @FocusState private var descFocused: Bool
 
     enum DateSelection: Equatable {
         case none, today, tomorrow, custom(Date)
@@ -100,6 +101,7 @@ struct TaskDetailView: View {
                             .font(.system(size: 17, weight: .semibold))
                             .lineLimit(1...4)
                             .focused($titleFocused)
+                            .onSubmit { saveAndClose() }
                     }
                     .padding(.horizontal, 18)
                     .padding(.top, 20)
@@ -108,13 +110,31 @@ struct TaskDetailView: View {
                     Divider()
 
                     // ── Description ────────────────────────────────
-                    TextField(LocalizedStringKey("task.desc.placeholder"), text: $desc, axis: .vertical)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2...10)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 14)
+                    // TextEditor used here so Shift+Return naturally inserts a
+                    // newline. Plain Return is intercepted to save and close.
+                    ZStack(alignment: .topLeading) {
+                        if desc.isEmpty && !descFocused {
+                            Text(LocalizedStringKey("task.desc.placeholder"))
+                                .font(.system(size: 14))
+                                .foregroundStyle(.tertiary)
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
+                        }
+                        TextEditor(text: $desc)
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                            .scrollContentBackground(.hidden)
+                            .frame(minHeight: 72)
+                            .focused($descFocused)
+                            .onKeyPress(.return, phases: .down) { press in
+                                guard !press.modifiers.contains(.shift) else { return .ignored }
+                                saveAndClose()
+                                return .handled
+                            }
+                    }
+                    .padding(.horizontal, 13)
+                    .padding(.vertical, 10)
 
                     Divider()
 
@@ -229,7 +249,7 @@ struct TaskDetailView: View {
                     Divider()
 
                     // ── Location ───────────────────────────────────
-                    ExtrasLocationRow(address: $locationAddress)
+                    ExtrasLocationRow(address: $locationAddress, onSubmit: saveAndClose)
 
                     Spacer(minLength: 20)
                 }
@@ -275,6 +295,12 @@ struct TaskDetailView: View {
                 if accessing { url.stopAccessingSecurityScopedResource() }
             }
         }
+    }
+
+    private func saveAndClose() {
+        save()
+        discardChanges = true
+        onClose()
     }
 
     private func save() {
@@ -473,6 +499,7 @@ struct ExtrasLinksRow: View {
 
 struct ExtrasLocationRow: View {
     @Binding var address: String
+    var onSubmit: (() -> Void)? = nil
     @Environment(\.appAccent) private var accent
 
     var body: some View {
@@ -500,6 +527,7 @@ struct ExtrasLocationRow: View {
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .lineLimit(1...3)
+                .onSubmit { onSubmit?() }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 7)
                 .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 8))

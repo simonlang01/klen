@@ -23,7 +23,7 @@ private func loc(_ key: String) -> String { NSLocalizedString(key, comment: "") 
 
 extension HelpTopic {
     // Computed so strings are re-evaluated after language change
-    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, search, trash, settings, shortcuts] }
+    static var all: [HelpTopic] { [dashboard, quickAdd, smartInput, groups, search, trash, settings, shortcuts, backup] }
 
     static var dashboard: HelpTopic { HelpTopic(
         id: "dashboard", icon: "square.grid.2x2", title: loc("help.dashboard.title"),
@@ -118,6 +118,16 @@ extension HelpTopic {
             .init(id: "k5", heading: loc("help.shortcuts.s5.heading"), body: loc("help.shortcuts.s5.body"))
         ]
     )}
+
+    static var backup: HelpTopic { HelpTopic(
+        id: "backup", icon: "externaldrive", title: loc("help.backup.title"),
+        sections: [
+            .init(id: "b1", heading: loc("help.backup.s1.heading"), body: loc("help.backup.s1.body")),
+            .init(id: "b2", heading: loc("help.backup.s2.heading"), body: loc("help.backup.s2.body"),
+                  tip: loc("help.backup.s2.tip")),
+            .init(id: "b3", heading: loc("help.backup.s3.heading"), body: loc("help.backup.s3.body"))
+        ]
+    )}
 }
 
 // MARK: – View
@@ -151,32 +161,38 @@ struct HelpView: View {
             Divider()
 
             // ── Content ──────────────────────────────────────────
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Topic header
-                    HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: selectedTopic.icon)
-                            .font(.system(size: 22))
-                            .foregroundStyle(accent)
-                        Text(selectedTopic.title)
-                            .font(.system(size: 20, weight: .semibold))
-                        Spacer()
-                        Button(action: { dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 18))
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
+            VStack(spacing: 0) {
+                // Sticky header with close button
+                HStack(alignment: .center, spacing: 10) {
+                    Image(systemName: selectedTopic.icon)
+                        .font(.system(size: 18))
+                        .foregroundStyle(accent)
+                    Text(selectedTopic.title)
+                        .font(.system(size: 16, weight: .semibold))
+                    Spacer()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.bottom, 20)
-
-                    // Sections
-                    ForEach(selectedTopic.sections) { section in
-                        HelpSectionView(section: section)
-                    }
+                    .buttonStyle(.plain)
+                    .help(LocalizedStringKey("task.discard.help"))
                 }
-                .padding(28)
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(.background)
+
+                Divider()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(selectedTopic.sections) { section in
+                            HelpSectionView(section: section)
+                        }
+                    }
+                    .padding(28)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
             }
             .frame(maxWidth: .infinity)
             .background(Color.primary.opacity(0.02))
