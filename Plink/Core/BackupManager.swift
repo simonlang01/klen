@@ -138,12 +138,16 @@ final class BackupManager {
             showAlert(title: NSLocalizedString("backup.error.title", comment: ""), message: NSLocalizedString("backup.import.error.decode", comment: "")); return
         }
 
-        // Delete all existing data (cascade deletes attachments)
+        // Delete all existing data and flush immediately so SwiftData
+        // doesn't hold pending deletes alongside pending inserts.
         if let existingItems = try? context.fetch(FetchDescriptor<TodoItem>()) {
             existingItems.forEach { context.delete($0) }
         }
         if let existingGroups = try? context.fetch(FetchDescriptor<TodoGroup>()) {
             existingGroups.forEach { context.delete($0) }
+        }
+        do { try context.save() } catch {
+            showAlert(title: NSLocalizedString("backup.error.title", comment: ""), message: error.localizedDescription); return
         }
 
         // Prepare attachments directory
@@ -151,7 +155,7 @@ final class BackupManager {
             .appending(path: "Attachments", directoryHint: .isDirectory)
         try? FileManager.default.createDirectory(at: attachmentsDir, withIntermediateDirectories: true)
 
-        // Insert groups
+        // Insert groups first — items reference them by UUID
         var groupIndex: [UUID: TodoGroup] = [:]
         for dto in backup.groups {
             let g = TodoGroup(name: dto.name)
@@ -161,22 +165,25 @@ final class BackupManager {
             groupIndex[dto.id] = g
         }
 
-        // Insert items + attachments
+        // Insert items — must call context.insert(item) BEFORE touching
+        // any relationships, otherwise SwiftData crashes on unregistered objects.
         for dto in backup.items {
             let item = TodoItem(title: dto.title)
-            item.id           = dto.id
-            item.desc         = dto.desc
-            item.priority     = Priority(rawValue: dto.priority) ?? .none
-            item.dueDate      = dto.dueDate
-            item.isCompleted  = dto.isCompleted
-            item.isDeleted    = dto.isDeleted
-            item.createdAt    = dto.createdAt
-            item.completedAt  = dto.completedAt
-            item.deletedAt    = dto.deletedAt
-            item.links        = dto.links
+            item.id              = dto.id
+            item.desc            = dto.desc
+            item.priority        = Priority(rawValue: dto.priority) ?? .none
+            item.dueDate         = dto.dueDate
+            item.isCompleted     = dto.isCompleted
+            item.isDeleted       = dto.isDeleted
+            item.createdAt       = dto.createdAt
+            item.completedAt     = dto.completedAt
+            item.deletedAt       = dto.deletedAt
+            item.links           = dto.links
             item.locationAddress = dto.locationAddress
             item.blockingStatus  = dto.blockingStatus.flatMap { BlockingStatus(rawValue: $0) }
-            item.group           = dto.groupID.flatMap { groupIndex[$0] }
+            context.insert(item)  // must be inserted before setting relationships
+
+            item.group = dto.groupID.flatMap { groupIndex[$0] }
 
             for attDTO in dto.attachments {
                 let ext = URL(fileURLWithPath: attDTO.filename).pathExtension
@@ -185,12 +192,11 @@ final class BackupManager {
                     try? data.write(to: destFile, options: .atomic)
                 }
                 let att = TaskAttachment(filename: attDTO.filename, filePath: destFile.path, typeIdentifier: attDTO.typeIdentifier)
-                att.id   = attDTO.id
+                att.id = attDTO.id
+                context.insert(att)  // insert attachment before linking
                 att.task = item
-                context.insert(att)
                 item.attachments.append(att)
             }
-            context.insert(item)
         }
 
         do {
