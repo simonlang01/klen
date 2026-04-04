@@ -43,7 +43,7 @@ LENGTH=$(echo "$SIG_OUTPUT" | grep -o 'length="[^"]*"' | cut -d'"' -f2)
 DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 
 echo "→ Updating appcast.xml..."
-cat > "$REPO_ROOT/dist/appcast.xml" << EOF
+APPCAST_CONTENT=$(cat << EOF
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
     <channel>
@@ -70,10 +70,13 @@ cat > "$REPO_ROOT/dist/appcast.xml" << EOF
     </channel>
 </rss>
 EOF
+)
+echo "$APPCAST_CONTENT" > "$REPO_ROOT/dist/appcast.xml"
+echo "$APPCAST_CONTENT" > "$REPO_ROOT/appcast.xml"
 
 echo ""
 echo "✓ Done. Now:"
-echo "  1. Push appcast.xml to GitHub:  git add dist/appcast.xml && git commit -m 'Release $VERSION' && git push"
+echo "  1. Push appcast.xml to GitHub:  git add appcast.xml dist/appcast.xml && git commit -m 'Release $VERSION' && git push"
 echo "  2. Create GitHub Release v$VERSION and upload: $DMG"
 echo ""
 echo "  Existing users will be notified automatically on next launch."
