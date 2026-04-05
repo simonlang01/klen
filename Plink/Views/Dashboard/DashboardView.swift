@@ -81,11 +81,12 @@ struct DashboardView: View {
             }()
             AddTaskSheet(smartInputEnabled: appState.smartInputEnabled, preselectedGroup: preselectedGroup)
         }
-        .onReceive(refreshTimer) { _ in tick.toggle() }
+        .onReceive(refreshTimer) { _ in tick.toggle(); updateDockBadge() }
         .onExitCommand { if focusMode { exitFocus() } }
         .onAppear {
             KeyboardShortcuts.onKeyUp(for: .focusMode) { toggleFocus() }
         }
+        .onChange(of: allItems) { _, _ in updateDockBadge() }
         .onChange(of: todayClear) { wasClear, isClear in
             if !wasClear && isClear && didCompleteTask {
                 showCelebration = true
@@ -287,6 +288,19 @@ struct DashboardView: View {
     }
 
     // MARK: Actions
+
+    private func updateDockBadge() {
+        let endOfToday = Calendar.current.startOfDay(for: Date()).addingTimeInterval(86400)
+        let count = allItems.filter {
+            !$0.isCompleted && !$0.isDeleted &&
+            ($0.dueDate.map { $0 < endOfToday } ?? false)
+        }.count
+        if count > 0 {
+            NSApp.dockTile.badgeLabel = "\(count)"
+        } else {
+            NSApp.dockTile.badgeLabel = ""
+        }
+    }
 
     private func openHelpWindow() {
         if let w = helpWindow, w.isVisible { w.makeKeyAndOrderFront(nil); return }

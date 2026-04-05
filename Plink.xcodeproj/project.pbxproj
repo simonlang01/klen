@@ -18,6 +18,7 @@
 		14FE6A18741442CAD5B57AA7 /* TrashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A767F63DB37A146593994D /* TrashView.swift */; };
 		178DE512A0170AC9CF4A6166 /* TaskDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF6B5CEC28FD36794E7EEE2 /* TaskDetailView.swift */; };
 		1AAF7911429C7378AE730A97 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4409234FA71DAF9C747A4FA /* SidebarView.swift */; };
+		BB0011223344CCDD /* GroupCustomizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011223344AABB /* GroupCustomizerView.swift */; };
 		253364DAF4A52A57DD8A2CB0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84E3CEE3E3C1D6F7523493C /* ContentView.swift */; };
 		3FA90453A70252C4EB234E27 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12258557F23E4D54AF4CAC2A /* LanguageManager.swift */; };
 		5C684A236781D167408BEA05 /* AddTaskSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55185B06631D11CBA2D88D18 /* AddTaskSheet.swift */; };
@@ -78,6 +79,7 @@
 		9DB8E2140BAD62FE585F917C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A0F4DFB7DBD1D9E770D5A5A6 /* PlinkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlinkApp.swift; sourceTree = "<group>"; };
 		A4409234FA71DAF9C747A4FA /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		BB0011223344AABB /* GroupCustomizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCustomizerView.swift; sourceTree = "<group>"; };
 		B2F0ABF3C045182A4CB2A48E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B40F59F507071F28A3201E4A /* Plink.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Plink.entitlements; sourceTree = "<group>"; };
 		C3A767F63DB37A146593994D /* TrashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashView.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 				EB128DB77D1C62ABB46EDD07 /* SectionHeaderView.swift */,
 				9CCAA522332C49F08F1D8578 /* StatsHeaderView.swift */,
 				A4409234FA71DAF9C747A4FA /* SidebarView.swift */,
+				BB0011223344AABB /* GroupCustomizerView.swift */,
 				5AF6B5CEC28FD36794E7EEE2 /* TaskDetailView.swift */,
 				2AFA8F4A6FE30E7B1BC85372 /* TaskRowView.swift */,
 							FA28BD083CDE8A2E3DC321FC /* CelebrationOverlay.swift */,
@@ -372,6 +375,7 @@
 				E64ABFD807AB42A13D470864 /* SettingsView.swift in Sources */,
 				CE0E572371576BE702783CC3 /* ShortcutNames.swift in Sources */,
 				1AAF7911429C7378AE730A97 /* SidebarView.swift in Sources */,
+				BB0011223344CCDD /* GroupCustomizerView.swift in Sources */,
 				DA21AA1037654FCE2A193D69 /* SmartInputParser.swift in Sources */,
 				F8FFFB8526FECCEEB1CB59FA /* StatusBarController.swift in Sources */,
 				178DE512A0170AC9CF4A6166 /* TaskDetailView.swift in Sources */,

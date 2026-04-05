@@ -6,7 +6,8 @@ struct SidebarView: View {
     @Binding var showTrash: Bool
     @Binding var showActivityLog: Bool
     @Query(sort: \TodoGroup.name) private var groups: [TodoGroup]
-    @Query private var allItems: [TodoItem]
+    @Query(filter: #Predicate<TodoItem> { !$0.isDeleted }) private var allItems: [TodoItem]
+    @Query private var allItemsUnfiltered: [TodoItem]
     @Environment(\.modelContext) private var ctx
     @Environment(\.openSettings) private var openSettings
     @State private var newGroupName = ""
@@ -14,12 +15,13 @@ struct SidebarView: View {
     @State private var groupPendingDelete: TodoGroup? = nil
     @State private var groupPendingRename: TodoGroup? = nil
     @State private var renameText = ""
+    @State private var groupPendingCustomize: TodoGroup? = nil
     @State private var dropTargetFilter: GroupFilter? = nil
     @FocusState private var fieldFocused: Bool
     @FocusState private var renameFocused: Bool
     @Environment(\.appAccent) private var accent
 
-    private var trashCount: Int { allItems.filter { $0.isDeleted || $0.isCompleted }.count }
+    private var trashCount: Int { allItemsUnfiltered.filter { $0.isDeleted || $0.isCompleted }.count }
 
     // MARK: – Count helpers
 
@@ -102,7 +104,8 @@ struct SidebarView: View {
                                 isSelected: groupFilter == .group(group) && !showTrash && !showActivityLog,
                                 openCount: openCount(for: .group(group)),
                                 overdueCount: overdueCount(for: .group(group)),
-                                isDropTarget: dropTargetFilter == .group(group)
+                                isDropTarget: dropTargetFilter == .group(group),
+                                groupColor: group.colorHex.flatMap { Color(hex: $0) }
                             ) {
                                 groupFilter = .group(group); showTrash = false; showActivityLog = false
                             }
@@ -118,10 +121,19 @@ struct SidebarView: View {
                                         renameFocused = true
                                     }
                                 }
+                                Button(LocalizedStringKey("action.customize")) {
+                                    groupPendingCustomize = group
+                                }
                                 Divider()
                                 Button("action.delete", role: .destructive) {
                                     groupPendingDelete = group
                                 }
+                            }
+                            .popover(isPresented: Binding(
+                                get: { groupPendingCustomize?.id == group.id },
+                                set: { if !$0 { groupPendingCustomize = nil } }
+                            ), arrowEdge: .trailing) {
+                                GroupCustomizerView(group: group)
                             }
                         }
                     }
@@ -315,12 +327,16 @@ private struct SidebarRow: View {
     var overdueCount: Int = 0
     var isDestructive: Bool = false
     var isDropTarget: Bool = false
+    var groupColor: Color? = nil
     let action: () -> Void
 
     @State private var hovering = false
     @Environment(\.appAccent) private var accent
 
-    private var activeColor: Color { isDestructive ? .red.opacity(0.7) : accent }
+    private var activeColor: Color {
+        if isDestructive { return .red.opacity(0.7) }
+        return groupColor ?? accent
+    }
 
     var body: some View {
         Button(action: action) {
@@ -335,11 +351,19 @@ private struct SidebarRow: View {
                     .animation(.easeInOut(duration: 0.15), value: isDropTarget)
 
                 HStack(spacing: 8) {
-                    Image(systemName: icon)
-                        .scaledFont(size: 12, weight: isSelected ? .semibold : .regular)
-                        .foregroundStyle(isSelected || isDropTarget ? activeColor : .secondary)
-                        .frame(width: 18)
-                        .animation(.easeInOut(duration: 0.12), value: isSelected)
+                    ZStack(alignment: .bottomTrailing) {
+                        Image(systemName: icon)
+                            .scaledFont(size: 12, weight: isSelected ? .semibold : .regular)
+                            .foregroundStyle(isSelected || isDropTarget ? activeColor : .secondary)
+                            .frame(width: 18)
+                        if let groupColor, !isDestructive {
+                            Circle()
+                                .fill(groupColor)
+                                .frame(width: 6, height: 6)
+                                .offset(x: 3, y: 3)
+                        }
+                    }
+                    .frame(width: 18)
 
                     Text(label)
                         .scaledFont(size: 13, weight: isSelected ? .medium : .regular)
@@ -388,3 +412,4 @@ private struct SidebarRow: View {
         .onHover { hovering = $0 }
     }
 }
+
