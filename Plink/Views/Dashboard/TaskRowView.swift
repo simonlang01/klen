@@ -38,11 +38,11 @@ struct TaskRowView: View {
 
                     if item.isCompleted {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 10, weight: .bold))
+                            .scaledFont(size: 10, weight: .bold)
                             .foregroundStyle(.white)
                     } else if checkHovering {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 10, weight: .bold))
+                            .scaledFont(size: 10, weight: .bold)
                             .foregroundStyle(accent.opacity(0.5))
                     }
                 }
@@ -55,7 +55,7 @@ struct TaskRowView: View {
             // ── Text content ─────────────────────────────────────
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.title)
-                    .font(.system(size: 13.5, weight: item.isCompleted ? .regular : .medium))
+                    .scaledFont(size: 13.5, weight: item.isCompleted ? .regular : .medium)
                     .foregroundStyle(item.isCompleted ? .tertiary : .primary)
                     .strikethrough(item.isCompleted, color: Color.primary.opacity(0.3))
                     .lineLimit(1)
@@ -63,13 +63,25 @@ struct TaskRowView: View {
 
                 if !item.desc.isEmpty {
                     Text(item.desc)
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.quaternary)
                         .lineLimit(1)
                 }
             }
 
             Spacer()
+
+            // ── Delete button (hover) ────────────────────────────
+            if hovering && !item.isCompleted {
+                Button(action: onDelete) {
+                    Image(systemName: "xmark.circle.fill")
+                        .scaledFont(size: 14)
+                        .foregroundStyle(Color.secondary.opacity(0.35))
+                }
+                .buttonStyle(.plain)
+                .help(LocalizedStringKey("action.delete"))
+                .transition(.opacity.combined(with: .scale(scale: 0.85)))
+            }
 
             // ── Badges ───────────────────────────────────────────
             HStack(spacing: 6) {
@@ -80,24 +92,24 @@ struct TaskRowView: View {
                 HStack(spacing: 5) {
                     if !item.attachments.isEmpty {
                         Image(systemName: "paperclip")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.quaternary)
                     }
                     if !item.links.isEmpty {
                         Image(systemName: "link")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.quaternary)
                     }
                     if !item.locationAddress.isEmpty {
                         Image(systemName: "mappin")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.quaternary)
                     }
                 }
 
                 if item.isRecurring {
                     Image(systemName: "arrow.2.circlepath")
-                        .font(.system(size: 10))
+                        .scaledFont(size: 10)
                         .foregroundStyle(.quaternary)
                 }
 
@@ -160,11 +172,11 @@ struct CircularCheckbox: View {
                     .fill(isCompleted ? accent : Color.clear)
                 if isCompleted {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .bold))
+                        .scaledFont(size: 10, weight: .bold)
                         .foregroundStyle(.white)
                 } else if hovering {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .bold))
+                        .scaledFont(size: 10, weight: .bold)
                         .foregroundStyle(accent.opacity(0.5))
                 }
             }
@@ -198,7 +210,7 @@ private struct PriorityDot: View {
                 .fill(color)
                 .frame(width: 6, height: 6)
             Text(priority.chipLabel)
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(color)
         }
     }
@@ -221,14 +233,14 @@ private struct DueDateLabel: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: "calendar")
-                .font(.system(size: 10))
+                .scaledFont(size: 10)
             Text(Self.dateFmt.string(from: date))
             if hasDueTime {
                 Text("·").opacity(0.5)
                 Text(Self.timeFmt.string(from: date))
             }
         }
-        .font(.system(size: 11))
+        .scaledFont(size: 11)
         .foregroundStyle(isOverdue ? Color.red.opacity(0.8) : Color.primary.opacity(0.35))
     }
 }
@@ -248,8 +260,8 @@ private struct BlockingBadge: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: icon).font(.system(size: 9, weight: .semibold))
-            Text(label).font(.system(size: 11, weight: .medium))
+            Image(systemName: icon).scaledFont(size: 9, weight: .semibold)
+            Text(label).scaledFont(size: 11, weight: .medium)
         }
         .foregroundStyle(color.opacity(0.85))
         .padding(.horizontal, 6)

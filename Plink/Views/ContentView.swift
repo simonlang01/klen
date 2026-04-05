@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var showOnboarding = !FileManager.default.fileExists(
         atPath: PersistenceController.dataDirectory.appendingPathComponent(".onboarding_complete").path
     )
+    @State private var languageID = UUID()
 
     var body: some View {
         Group {
@@ -16,7 +17,11 @@ struct ContentView: View {
                     .frame(minWidth: 700, minHeight: 480)
             }
         }
+        .id(languageID)
         .preferredColorScheme(appState.appearanceMode.colorScheme)
         .environment(\.appAccent, appState.accentOption.color)
+        .onReceive(NotificationCenter.default.publisher(for: .plinkLanguageChanged)) { _ in
+            languageID = UUID()
+        }
     }
 }

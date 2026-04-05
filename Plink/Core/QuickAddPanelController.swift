@@ -46,15 +46,18 @@ final class QuickAddPanelController {
 
     // MARK: – Show
 
+    private static let autosaveName = "PlinkQuickAddPanel"
+
     private func show() {
         guard let container else { return }
 
         let screenWidth = NSScreen.main?.frame.width ?? 1280
-        let panelWidth = screenWidth * 0.5
+        let defaultWidth = screenWidth * 0.5
+        let defaultHeight: CGFloat = 98
 
         let panel = QuickPanel(
-            contentRect: NSRect(x: 0, y: 0, width: panelWidth, height: 98),
-            styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
+            contentRect: NSRect(x: 0, y: 0, width: defaultWidth, height: defaultHeight),
+            styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView, .resizable],
             backing: .buffered,
             defer: false
         )
@@ -66,17 +69,23 @@ final class QuickAddPanelController {
         panel.hasShadow = true
         panel.isOpaque = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        panel.showsResizeIndicator = true
+        panel.minSize = NSSize(width: 360, height: 80)
+        panel.maxSize = NSSize(width: min(screenWidth * 0.85, 1200), height: 600)
 
         let accentColor = appState?.accentOption.color ?? Theme.defaultAccent
         let colorScheme = appState?.appearanceMode.colorScheme
 
+        let fontScale = appState?.fontScale ?? 1.0
+
         let view = QuickAddView(smartInputEnabled: appState?.smartInputEnabled ?? false) { [weak self] in self?.dismiss() }
             .modelContainer(container)
             .environment(\.appAccent, accentColor)
+            .environment(\.appFontScale, fontScale)
             .preferredColorScheme(colorScheme)
 
         let host = NSHostingView(rootView: view)
-        host.frame = NSRect(x: 0, y: 0, width: panelWidth, height: 98)
+        host.frame = NSRect(x: 0, y: 0, width: defaultWidth, height: defaultHeight)
 
         // Rounded corners via layer
         host.wantsLayer = true
@@ -84,16 +93,16 @@ final class QuickAddPanelController {
         host.layer?.masksToBounds = true
 
         panel.contentView = host
-        panel.center()
 
-        // Nudge upward from screen center
-        if let screen = NSScreen.main {
-            let frame = panel.frame
-            let screenFrame = screen.visibleFrame
-            panel.setFrameOrigin(NSPoint(
-                x: frame.origin.x,
-                y: screenFrame.midY + 80
-            ))
+        // Restore saved frame or center on screen
+        panel.setFrameAutosaveName(Self.autosaveName)
+        if !panel.setFrameUsingName(Self.autosaveName) {
+            panel.center()
+            if let screen = NSScreen.main {
+                let frame = panel.frame
+                let screenFrame = screen.visibleFrame
+                panel.setFrameOrigin(NSPoint(x: frame.origin.x, y: screenFrame.midY + 80))
+            }
         }
 
         panel.orderFrontRegardless()
@@ -110,6 +119,7 @@ final class QuickAddPanelController {
     // MARK: – Dismiss
 
     func dismiss() {
+        panel?.saveFrame(usingName: Self.autosaveName)
         panel?.orderOut(nil)
         panel = nil
         if let monitor = mouseMonitor {

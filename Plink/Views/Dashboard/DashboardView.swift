@@ -4,7 +4,7 @@ import KeyboardShortcuts
 
 struct DashboardView: View {
     @StateObject private var vm = DashboardViewModel()
-    @Query private var allItems: [TodoItem]
+    @Query(filter: #Predicate<TodoItem> { !$0.isDeleted }) private var allItems: [TodoItem]
     @Environment(\.modelContext) private var ctx
     @EnvironmentObject private var appState: AppState
     @State private var showAddSheet = false
@@ -110,19 +110,19 @@ struct DashboardView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey("focus.title"))
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(size: 13, weight: .semibold)
                         .foregroundStyle(.secondary)
                     Text(Date(), style: .date)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.tertiary)
                 }
                 Spacer()
                 Button(action: exitFocus) {
                     HStack(spacing: 4) {
                         Text(LocalizedStringKey("focus.exit"))
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                         Text("Esc")
-                            .font(.system(size: 10, weight: .medium))
+                            .scaledFont(size: 10, weight: .medium)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
                             .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 4))
@@ -221,17 +221,17 @@ struct DashboardView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 44, weight: .ultraLight))
+                .scaledFont(size: 44, weight: .ultraLight)
                 .foregroundStyle(accent.opacity(0.4))
             Text("dashboard.empty.title")
-                .font(.system(size: 16, weight: .medium))
+                .scaledFont(size: 16, weight: .medium)
                 .foregroundStyle(.secondary)
             if allItems.isEmpty {
                 Button {
                     showAddSheet = true
                 } label: {
                     Label(LocalizedStringKey("dashboard.empty.cta"), systemImage: "plus")
-                        .font(.system(size: 14, weight: .medium))
+                        .scaledFont(size: 14, weight: .medium)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(accent)
@@ -239,7 +239,7 @@ struct DashboardView: View {
                 .padding(.top, 6)
             } else {
                 Text(String(format: NSLocalizedString("dashboard.empty.hint", comment: ""), KeyboardShortcuts.getShortcut(for: .quickAdd)?.description ?? "⌥Space"))
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(.tertiary)
             }
         }
@@ -255,7 +255,7 @@ struct DashboardView: View {
                 showAddSheet = true
             } label: {
                 Image(systemName: "square.and.pencil")
-                    .font(.system(size: 14, weight: .medium))
+                    .scaledFont(size: 14, weight: .medium)
                     .foregroundStyle(accent)
             }
             .keyboardShortcut("n", modifiers: .option)
@@ -266,7 +266,7 @@ struct DashboardView: View {
                 vm.sortOrder = vm.sortOrder == .date ? .priority : .date
             } label: {
                 Image(systemName: vm.sortOrder == .priority ? "flag.fill" : "flag")
-                    .font(.system(size: 14, weight: .medium))
+                    .scaledFont(size: 14, weight: .medium)
                     .foregroundStyle(vm.sortOrder == .priority ? accent : .secondary)
             }
             .help(LocalizedStringKey(vm.sortOrder == .priority ? "sort.date" : "sort.priority"))
@@ -274,7 +274,7 @@ struct DashboardView: View {
         ToolbarItem(placement: .primaryAction) {
             Button { toggleFocus() } label: {
                 Image(systemName: focusMode ? "scope" : "scope")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundStyle(focusMode ? accent : .secondary)
             }
             .help(LocalizedStringKey(focusMode ? "focus.exit" : "focus.enter"))

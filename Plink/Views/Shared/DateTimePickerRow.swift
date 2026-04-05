@@ -97,8 +97,8 @@ private struct DTChip: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 4) {
-                Image(systemName: icon).font(.system(size: 11))
-                Text(label).font(.system(size: 12)).lineLimit(1)
+                Image(systemName: icon).scaledFont(size: 11)
+                Text(label).scaledFont(size: 12).lineLimit(1)
             }
             .foregroundStyle(active || hovering ? accent : .secondary)
             .padding(.horizontal, 8)

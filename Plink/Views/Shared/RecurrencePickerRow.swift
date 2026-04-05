@@ -20,11 +20,11 @@ struct RecurrencePickerRow: View {
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "arrow.2.circlepath")
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                     Text(frequency == .none
                          ? NSLocalizedString("recurrence.add", comment: "")
                          : frequency.label)
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                 }
                 .foregroundStyle(disabled ? Color.primary.opacity(0.25) : (frequency == .none ? .secondary : accent))
                 .padding(.horizontal, 9)
@@ -42,19 +42,19 @@ struct RecurrencePickerRow: View {
             if frequency != .none {
                 HStack(spacing: 6) {
                     Text(NSLocalizedString("recurrence.every", comment: ""))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
 
                     Stepper(value: $interval, in: 1...99) {
                         Text("\(interval)")
-                            .font(.system(size: 12, weight: .medium))
+                            .scaledFont(size: 12, weight: .medium)
                             .foregroundStyle(accent)
                             .frame(minWidth: 18, alignment: .trailing)
                     }
                     .fixedSize()
 
                     Text(unitLabel)
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                 }
                 .transition(.opacity.combined(with: .move(edge: .leading)))

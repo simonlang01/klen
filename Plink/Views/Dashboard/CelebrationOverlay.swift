@@ -91,7 +91,7 @@ struct CelebrationOverlay: View {
                                 .scaleEffect(checkScale)
 
                             Image(systemName: "checkmark")
-                                .font(.system(size: 38, weight: .bold))
+                                .scaledFont(size: 38, weight: .bold)
                                 .foregroundStyle(accent)
                                 .scaleEffect(checkScale)
                                 .opacity(checkOpacity)
@@ -100,11 +100,11 @@ struct CelebrationOverlay: View {
                         // Message
                         VStack(spacing: 8) {
                             Text(LocalizedStringKey("celebration.title"))
-                                .font(.system(size: 22, weight: .bold))
+                                .scaledFont(size: 22, weight: .bold)
                                 .foregroundStyle(.primary)
 
                             Text(LocalizedStringKey("celebration.subtitle"))
-                                .font(.system(size: 14))
+                                .scaledFont(size: 14)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: 260)

@@ -29,11 +29,11 @@ struct MenuBarPopoverView: View {
             // Header
             HStack {
                 Text("Plink")
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                 Spacer()
                 if !visibleTasks.isEmpty {
                     Text("\(visibleTasks.count)")
-                        .font(.system(size: 11, weight: .medium))
+                        .scaledFont(size: 11, weight: .medium)
                         .foregroundStyle(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -41,7 +41,7 @@ struct MenuBarPopoverView: View {
                 }
                 Button(action: onOpenApp) {
                     Image(systemName: "arrow.up.forward.app")
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -56,10 +56,10 @@ struct MenuBarPopoverView: View {
             // Quick add
             HStack(spacing: 8) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 14))
+                    .scaledFont(size: 14)
                     .foregroundStyle(accent.opacity(0.8))
                 TextField(LocalizedStringKey("menubar.newTask.placeholder"), text: $quickTitle)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .textFieldStyle(.plain)
                     .focused($quickFocused)
                     .onSubmit { addQuick() }
@@ -73,10 +73,10 @@ struct MenuBarPopoverView: View {
             if visibleTasks.isEmpty {
                 VStack(spacing: 6) {
                     Image(systemName: "checkmark.circle")
-                        .font(.system(size: 22))
+                        .scaledFont(size: 22)
                         .foregroundStyle(accent.opacity(0.5))
                     Text(LocalizedStringKey("menubar.noTasksToday"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -103,11 +103,11 @@ struct MenuBarPopoverView: View {
             Button(action: onOpenApp) {
                 HStack {
                     Text(LocalizedStringKey("menubar.openPlink"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 10))
+                        .scaledFont(size: 10)
                         .foregroundStyle(.tertiary)
                 }
                 .contentShape(Rectangle())
@@ -163,7 +163,7 @@ private struct PopoverTaskRow: View {
                         .frame(width: 18, height: 18)
                     if checkHovering {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 9, weight: .bold))
+                            .scaledFont(size: 9, weight: .bold)
                             .foregroundStyle(accent.opacity(0.5))
                     }
                 }
@@ -174,7 +174,7 @@ private struct PopoverTaskRow: View {
 
             // Title
             Text(item.title)
-                .font(.system(size: 12.5))
+                .scaledFont(size: 12.5)
                 .lineLimit(1)
                 .foregroundStyle(.primary)
 
@@ -189,7 +189,7 @@ private struct PopoverTaskRow: View {
                         Text(Self.timeFmt.string(from: due))
                     }
                 }
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(isOverdue ? Color.red.opacity(0.7) : Color.primary.opacity(0.3))
             }
         }

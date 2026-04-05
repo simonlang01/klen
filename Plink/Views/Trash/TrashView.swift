@@ -53,7 +53,7 @@ struct TrashView: View {
                         (deleted + completed).forEach { permanentlyDelete($0) }
                     } label: {
                         Label(LocalizedStringKey("trash.emptyAction"), systemImage: "trash")
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                     }
                     .help(LocalizedStringKey("trash.emptyHelp"))
                 }
@@ -64,10 +64,10 @@ struct TrashView: View {
     private var retentionNote: some View {
         HStack(spacing: 6) {
             Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.secondary)
             Text("trash.retention")
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, 16)
@@ -80,16 +80,16 @@ struct TrashView: View {
     private var emptyState: some View {
         VStack(spacing: 10) {
             Image(systemName: "trash")
-                .font(.system(size: 36, weight: .ultraLight))
+                .scaledFont(size: 36, weight: .ultraLight)
                 .foregroundStyle(accent.opacity(0.35))
             Text("trash.empty.title")
-                .font(.system(size: 15, weight: .medium))
+                .scaledFont(size: 15, weight: .medium)
                 .foregroundStyle(.secondary)
             Text("trash.empty.subtitle")
-                .font(.system(size: 12))
+                .scaledFont(size: 12)
                 .foregroundStyle(.tertiary)
             Text("trash.retention")
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.tertiary)
                 .padding(.top, 4)
         }
@@ -121,19 +121,19 @@ private struct TrashSectionHeader: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.secondary)
             Text(title)
-                .font(.system(size: 11, weight: .semibold))
+                .scaledFont(size: 11, weight: .semibold)
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
                 .tracking(0.5)
             Text("\(count)")
-                .font(.system(size: 10, weight: .medium))
+                .scaledFont(size: 10, weight: .medium)
                 .foregroundStyle(.tertiary)
             Spacer()
             Button(LocalizedStringKey("trash.clear"), action: onClearSection)
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.secondary)
                 .buttonStyle(.plain)
         }
@@ -153,22 +153,26 @@ private struct TrashRowView: View {
     @State private var hovering = false
     @Environment(\.appAccent) private var accent
 
+    private var isDiscarded: Bool { item.isDeleted && !item.isCompleted }
+    private var rowIcon: String { isDiscarded ? "xmark.circle" : "checkmark.circle" }
+    private var rowIconColor: Color { isDiscarded ? Color.secondary.opacity(0.45) : accent.opacity(0.5) }
+
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: item.isDeleted ? "trash" : "checkmark.circle")
-                .font(.system(size: 13))
-                .foregroundStyle(item.isDeleted ? Color.secondary.opacity(0.4) : accent.opacity(0.5))
+            Image(systemName: rowIcon)
+                .scaledFont(size: 13)
+                .foregroundStyle(rowIconColor)
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(.secondary)
-                    .strikethrough(true, color: .secondary.opacity(0.5))
+                    .strikethrough(!isDiscarded, color: .secondary.opacity(0.5))
                     .lineLimit(1)
                 if !item.desc.isEmpty {
                     Text(item.desc)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
@@ -182,7 +186,7 @@ private struct TrashRowView: View {
                         onRestore()
                     } label: {
                         Label(LocalizedStringKey("action.restore"), systemImage: "arrow.uturn.backward")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(accent)
                     }
                     .buttonStyle(.plain)
@@ -191,7 +195,7 @@ private struct TrashRowView: View {
                         onDelete()
                     } label: {
                         Label(LocalizedStringKey("action.delete"), systemImage: "xmark")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.red.opacity(0.7))
                     }
                     .buttonStyle(.plain)
@@ -200,7 +204,7 @@ private struct TrashRowView: View {
             } else {
                 if let due = item.dueDate {
                     Text(due, style: .date)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.tertiary)
                 }
                 if item.priority != .none {

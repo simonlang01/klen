@@ -144,10 +144,10 @@ struct SidebarView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "plus")
-                            .font(.system(size: 11, weight: .semibold))
+                            .scaledFont(size: 11, weight: .semibold)
                             .frame(width: 18)
                         Text(LocalizedStringKey("group.new"))
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                     }
                     .foregroundStyle(accent.opacity(0.7))
                     .padding(.horizontal, 12)
@@ -266,7 +266,7 @@ private struct SidebarSectionLabel: View {
 
     var body: some View {
         Text(key)
-            .font(.system(size: 10, weight: .semibold))
+            .scaledFont(size: 10, weight: .semibold)
             .foregroundStyle(.tertiary)
             .textCase(.uppercase)
             .tracking(0.6)
@@ -290,12 +290,12 @@ private struct SidebarRenameField: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .scaledFont(size: 12)
                 .foregroundStyle(accent)
                 .frame(width: 18)
             TextField("", text: $text)
                 .textFieldStyle(.plain)
-                .font(.system(size: 13))
+                .scaledFont(size: 13)
                 .focused(focused)
                 .onSubmit { onCommit() }
                 .onExitCommand { onCancel() }
@@ -336,13 +336,13 @@ private struct SidebarRow: View {
 
                 HStack(spacing: 8) {
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                        .scaledFont(size: 12, weight: isSelected ? .semibold : .regular)
                         .foregroundStyle(isSelected || isDropTarget ? activeColor : .secondary)
                         .frame(width: 18)
                         .animation(.easeInOut(duration: 0.12), value: isSelected)
 
                     Text(label)
-                        .font(.system(size: 13, weight: isSelected ? .medium : .regular))
+                        .scaledFont(size: 13, weight: isSelected ? .medium : .regular)
                         .foregroundStyle(isSelected ? .primary : .secondary)
                         .lineLimit(1)
                         .animation(.easeInOut(duration: 0.12), value: isSelected)
@@ -352,14 +352,14 @@ private struct SidebarRow: View {
                     // Count badges
                     if overdueCount > 0 {
                         Text("\(overdueCount)")
-                            .font(.system(size: 10, weight: .semibold))
+                            .scaledFont(size: 10, weight: .semibold)
                             .foregroundStyle(.white)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(Color.red.opacity(0.75), in: Capsule())
                     } else if openCount > 0 {
                         Text("\(openCount)")
-                            .font(.system(size: 10, weight: .medium))
+                            .scaledFont(size: 10, weight: .medium)
                             .foregroundStyle(isSelected ? activeColor : Color.primary.opacity(0.3))
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)

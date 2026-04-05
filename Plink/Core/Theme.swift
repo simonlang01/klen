@@ -24,16 +24,24 @@ enum AccentColorOption: String, CaseIterable, Identifiable {
     var label: String { rawValue.capitalized }
 }
 
-// MARK: – Environment key
+// MARK: – Environment keys
 
 struct AppAccentKey: EnvironmentKey {
     static let defaultValue: Color = AccentColorOption.teal.color
+}
+
+struct AppFontScaleKey: EnvironmentKey {
+    static let defaultValue: Double = 1.0
 }
 
 extension EnvironmentValues {
     var appAccent: Color {
         get { self[AppAccentKey.self] }
         set { self[AppAccentKey.self] = newValue }
+    }
+    var appFontScale: Double {
+        get { self[AppFontScaleKey.self] }
+        set { self[AppFontScaleKey.self] = newValue }
     }
 }
 
@@ -51,6 +59,25 @@ enum Theme {
 
     /// Default accent — use `@Environment(\.appAccent)` in views for the live value.
     static let defaultAccent   = AccentColorOption.teal.color
+}
+
+// MARK: – Scaled font modifier
+
+private struct ScaledFontModifier: ViewModifier {
+    let size: CGFloat
+    var weight: Font.Weight = .regular
+    var design: Font.Design = .default
+    @Environment(\.appFontScale) private var scale
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: size * scale, weight: weight, design: design))
+    }
+}
+
+extension View {
+    func scaledFont(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> some View {
+        modifier(ScaledFontModifier(size: size, weight: weight, design: design))
+    }
 }
 
 // MARK: – Hex init

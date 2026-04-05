@@ -17,9 +17,9 @@ struct TimePresetRow: View {
             } label: {
                 HStack(spacing: 5) {
                     Image(systemName: "clock")
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                     Text(hasDueTime ? Self.fmt.string(from: dueTime) : NSLocalizedString("task.time.add", comment: ""))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                 }
                 .foregroundStyle(hasDueTime ? accent : .secondary)
                 .padding(.horizontal, 9)

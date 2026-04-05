@@ -224,14 +224,14 @@ struct HelpView: View {
                 // Sticky header with close button
                 HStack(alignment: .center, spacing: 10) {
                     Image(systemName: selectedTopic.icon)
-                        .font(.system(size: 18))
+                        .scaledFont(size: 18)
                         .foregroundStyle(accent)
                     Text(selectedTopic.title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .scaledFont(size: 16, weight: .semibold)
                     Spacer()
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 18))
+                            .scaledFont(size: 18)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
@@ -274,11 +274,11 @@ private struct HelpSidebarRow: View {
         Button(action: action) {
             HStack(spacing: 9) {
                 Image(systemName: icon)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(isSelected ? accent : .secondary)
                     .frame(width: 18)
                 Text(title)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(isSelected ? .primary : .secondary)
                 Spacer()
             }
@@ -305,12 +305,12 @@ private struct HelpSectionView: View {
         VStack(alignment: .leading, spacing: 8) {
             if let heading = section.heading {
                 Text(heading)
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                     .foregroundStyle(accent)
             }
 
             Text(section.body)
-                .font(.system(size: 13))
+                .scaledFont(size: 13)
                 .foregroundStyle(.primary.opacity(0.85))
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
@@ -318,11 +318,11 @@ private struct HelpSectionView: View {
             if let tip = section.tip {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "lightbulb")
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(accent)
                         .padding(.top, 1)
                     Text(tip)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -333,11 +333,11 @@ private struct HelpSectionView: View {
             if let warning = section.warning {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.orange)
                         .padding(.top, 1)
                     Text(warning)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.orange.opacity(0.9))
                         .fixedSize(horizontal: false, vertical: true)
                 }

@@ -7,9 +7,12 @@ import FoundationModels
 
 struct SmartInputResult {
     var title: String
-    var desc: String
+    var desc: String = ""
     var dueDate: Date?
+    var hasDueTime: Bool = false
     var priority: Priority
+    var groupName: String?        // nil = no group prefix detected
+    var blockingStatus: BlockingStatus? = nil  // nil = not set
 }
 
 // MARK: – Engine availability
@@ -54,12 +57,6 @@ enum SmartInputParser {
     @available(macOS 26, *)
     @Generable
     struct LLMTaskResult {
-        @Guide(description: "A very short, action-oriented task title. Max 5 words. No filler. Examples: 'Call John', 'Send quarterly report', 'Buy groceries'.")
-        var title: String
-
-        @Guide(description: "Any additional context, details or notes not captured in the title. Empty string if none.")
-        var description: String
-
         @Guide(description: "Priority level. Must be one of: none, low, medium, high.")
         var priority: String
     }
@@ -72,7 +69,7 @@ enum SmartInputParser {
         let session = LanguageModelSession()
 
         let prompt = """
-        Parse the following task input and extract a short title, optional description, and priority. \
+        Analyse the following task input and extract only the priority level. \
         Keep all text in the same language as the input — do not translate.
         Input: \(input)
         """
@@ -80,9 +77,8 @@ enum SmartInputParser {
         do {
             let response = try await session.respond(to: prompt, generating: LLMTaskResult.self)
             let result = response.content
-            // Use deterministic NLTagger for date extraction — LLMs are unreliable for date arithmetic
-            var textForDate = input
-            let dueDate = extractDate(from: &textForDate)
+            var text = input
+            let groupName = extractGroupPrefix(from: &text)
             let priority: Priority = {
                 switch result.priority.lowercased() {
                 case "high":   return .high
@@ -91,82 +87,219 @@ enum SmartInputParser {
                 default:       return .none
                 }
             }()
-            return SmartInputResult(title: result.title, desc: result.description, dueDate: dueDate, priority: priority)
+            var dueDate = extractDate(from: &text)
+            let timeComponents = extractTime(from: &text)
+            if let tc = timeComponents {
+                let base = dueDate ?? Calendar.current.startOfDay(for: Date())
+                dueDate = Calendar.current.date(bySettingHour: tc.hour, minute: tc.minute, second: 0, of: base)
+            }
+            let title = buildTitle(from: text)
+            var parsed = SmartInputResult(title: title, dueDate: dueDate, priority: priority, groupName: groupName)
+            parsed.hasDueTime = timeComponents != nil
+            return parsed
         } catch {
             return nil
         }
     }
     #endif
 
+    // MARK: – Token parser
+    //
+    // Syntax: <title text> <tokens in any order>
+    // Tokens:
+    //   @<date>    e.g. @tomorrow @today @10.05. @monday
+    //   @@<time>   e.g. @@10:00  @@14:30
+    //   #<group>   e.g. #Peter Park    (extends to next token)
+    //   !<flag>    Priority:  !h(igh)  !m(edium)  !l(ow)
+    //              Blocking:  !b(locked — ich bin blockiert)  !x (ich blockiere)
+    //
+    // Title = everything before the first token symbol.
+    // Each token's value extends to the next token symbol (@ # !) or end.
+    // Note: @@ is a distinct token; the scanner checks for it before @.
+    // Unknown values are silently ignored — tokens are always stripped from title.
+
+    static func parseWithTokens(_ input: String) -> SmartInputResult {
+        let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        let tokenSyms: Set<Character> = ["@", "#", "!"]
+
+        // Title = text before the first token symbol
+        let firstTok = text.firstIndex(where: { tokenSyms.contains($0) }) ?? text.endIndex
+        let titleRaw = String(text[..<firstTok]).trimmingCharacters(in: .whitespacesAndNewlines)
+        let title = titleRaw.isEmpty ? titleRaw : titleRaw.prefix(1).uppercased() + titleRaw.dropFirst()
+
+        var groupName: String? = nil
+        var priority: Priority = .none
+        var blockingStatus: BlockingStatus? = nil
+        var dueDate: Date? = nil
+        var hasDueTime = false
+
+        var i = firstTok
+        while i < text.endIndex {
+            let ch = text[i]
+            guard tokenSyms.contains(ch) else { i = text.index(after: i); continue }
+
+            let afterSym = text.index(after: i)
+
+            // Check for @@ (time token)
+            if ch == "@", afterSym < text.endIndex, text[afterSym] == "@" {
+                let valueStart = text.index(after: afterSym)
+                let valueEnd = nextTokenIndex(from: valueStart, in: text)
+                var expr = String(text[valueStart..<valueEnd]).trimmingCharacters(in: .whitespaces)
+                if let tc = extractTime(from: &expr) {
+                    if dueDate == nil { dueDate = Calendar.current.startOfDay(for: Date()) }
+                    dueDate = Calendar.current.date(bySettingHour: tc.hour, minute: tc.minute, second: 0, of: dueDate!)
+                    hasDueTime = true
+                }
+                i = valueEnd
+                continue
+            }
+
+            // Single @ (date token)
+            if ch == "@" {
+                let valueEnd = nextTokenIndex(from: afterSym, in: text)
+                var expr = String(text[afterSym..<valueEnd]).trimmingCharacters(in: .whitespaces)
+                if let d = extractDate(from: &expr) { dueDate = d }
+                i = valueEnd
+                continue
+            }
+
+            // # (group token)
+            if ch == "#" {
+                let valueEnd = nextTokenIndex(from: afterSym, in: text)
+                let name = String(text[afterSym..<valueEnd]).trimmingCharacters(in: .whitespaces)
+                if !name.isEmpty { groupName = name }
+                i = valueEnd
+                continue
+            }
+
+            // ! (flag token: priority or blocking) — first word only
+            // Primary (language-neutral): !h !m !l !b !x
+            // EN aliases: !high !medium !low !blocked !blocking
+            // DE aliases: !hoch !mittel !niedrig !blockiert !blockiere
+            if ch == "!" {
+                let valueEnd = nextTokenIndex(from: afterSym, in: text)
+                let kw = String(text[afterSym..<valueEnd])
+                    .prefix(while: { $0 != " " }).lowercased()
+                switch kw {
+                case "h", "high",    "hoch":                            priority = .high
+                case "m", "medium",  "mittel":                          priority = .medium
+                case "l", "low",     "niedrig":                         priority = .low
+                case "b", "blocked", "blockiert":                       blockingStatus = .blocked
+                case "x", "blocking","blockiere", "blocke":             blockingStatus = .blocking
+                default: break  // unknown value — silently ignored
+                }
+                i = valueEnd
+                continue
+            }
+
+            i = text.index(after: i)
+        }
+
+        var result = SmartInputResult(title: title, dueDate: dueDate, priority: priority, groupName: groupName)
+        result.hasDueTime = hasDueTime
+        result.blockingStatus = blockingStatus
+        return result
+    }
+
+    private static func nextTokenIndex(from start: String.Index, in text: String) -> String.Index {
+        let syms: Set<Character> = ["@", "#", "!"]
+        return text[start...].firstIndex(where: { syms.contains($0) }) ?? text.endIndex
+    }
+
     // MARK: – NLTagger path (always available)
 
     static func parseWithNLTagger(_ input: String) -> SmartInputResult {
         var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        let priority = extractPriority(from: &text)
-        let dueDate  = extractDate(from: &text)
-        text = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters))
-        let (title, desc) = splitTitleAndDesc(text)
-        return SmartInputResult(title: title, desc: desc, dueDate: dueDate, priority: priority)
+        let groupName = extractGroupPrefix(from: &text)
+        let priority  = extractPriority(from: &text)
+        var dueDate   = extractDate(from: &text)
+        let timeComponents = extractTime(from: &text)
+        if let tc = timeComponents {
+            let base = dueDate ?? Calendar.current.startOfDay(for: Date())
+            dueDate = Calendar.current.date(bySettingHour: tc.hour, minute: tc.minute, second: 0, of: base)
+        }
+        let title = buildTitle(from: text)
+        var result = SmartInputResult(title: title, dueDate: dueDate, priority: priority, groupName: groupName)
+        result.hasDueTime = timeComponents != nil
+        return result
     }
 
-    // MARK: – Title / Description split
+    // MARK: – Group prefix extraction
+    // Matches "GroupName: rest of input" at the very start.
 
-    private static func splitTitleAndDesc(_ text: String) -> (String, String) {
-        let separators = [" - ", " – ", " — ",
-                          ", because ", " because ", " so that ", " since ",
-                          ", weil ", " weil ", ", damit ", " damit ", ", da ", " denn ",
-                          ". "]
-        for sep in separators {
-            if let range = text.range(of: sep, options: .caseInsensitive) {
-                let candidate = String(text[..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
-                let rest      = String(text[range.upperBound...]).trimmingCharacters(in: .whitespaces)
-                if !candidate.isEmpty {
-                    return (capitalize(shortenWithNL(candidate)), capitalize(rest))
-                }
-            }
-        }
-        let core = extractCoreAction(from: text)
-        if !core.isEmpty && core.count < text.count {
-            let rest = text.replacingOccurrences(of: core, with: "", options: .caseInsensitive)
-                .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters))
-            return (capitalize(core), capitalize(rest))
-        }
-        return (capitalize(text), "")
+    private static func extractGroupPrefix(from text: inout String) -> String? {
+        // Pattern: word characters (and spaces) followed by colon+space at start
+        let pattern = #"^([^:]{1,40}):\s+"#
+        guard let match = firstMatch(pattern, in: text),
+              let range = Range(match.range, in: text),
+              let nameRange = Range(match.range(at: 1), in: text) else { return nil }
+        let name = String(text[nameRange]).trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return nil }
+        text.removeSubrange(range)
+        return name
     }
 
-    private static func extractCoreAction(from text: String) -> String {
-        let tagger = NLTagger(tagSchemes: [.lexicalClass])
-        tagger.string = text
-        var tokens: [(String, NLTag)] = []
-        tagger.enumerateTags(in: text.startIndex..<text.endIndex, unit: .word,
-                             scheme: .lexicalClass, options: [.omitWhitespace, .omitPunctuation]) { tag, range in
-            if let tag { tokens.append((String(text[range]), tag)) }
-            return true
+    // MARK: – Title builder
+    // The full remaining text (after extracting group/date/priority) becomes the title.
+    // Filler phrases at the start are stripped but the rest is kept verbatim.
+
+    private static func buildTitle(from text: String) -> String {
+        var result = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(.punctuationCharacters))
+        let fillers = ["i need to ","i have to ","i must ","i should ","i want to ",
+                       "ich muss ","ich soll ","ich möchte ","ich will ",
+                       "please ","bitte ","remind me to ","don't forget to "]
+        for f in fillers {
+            if result.lowercased().hasPrefix(f) { result = String(result.dropFirst(f.count)); break }
         }
-        guard let verbIdx = tokens.firstIndex(where: { $0.1 == .verb }) else {
-            return tokens.prefix(4).map(\.0).joined(separator: " ")
-        }
-        var parts: [String] = []
-        for token in tokens[verbIdx...] {
-            if token.1 == .preposition || token.1 == .conjunction || token.1 == .adverb { break }
-            parts.append(token.0)
-            if parts.count >= 5 { break }
-        }
-        return parts.joined(separator: " ")
+        result = result.trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.whitespaces))
+        guard let first = result.first else { return result }
+        return first.uppercased() + result.dropFirst()
     }
 
-    private static func shortenWithNL(_ text: String) -> String {
-        let words = text.split(separator: " ")
-        guard words.count > 5 else { return text }
-        let core = extractCoreAction(from: text)
-        return core.isEmpty ? text : core
-    }
-
-    // MARK: – Date extraction
+    // MARK: – Date + time extraction
 
     private static func extractDate(from text: inout String) -> Date? {
         if let result = extractRelativeDate(from: &text) { return result }
         return extractDetectorDate(from: &text)
+    }
+
+    /// Extracts a clock time from the text (e.g. "um 10:00 Uhr", "at 3pm", "15:30").
+    /// Returns hour/minute components and removes the matched span from text.
+    static func extractTime(from text: inout String) -> (hour: Int, minute: Int)? {
+        let lower = text.lowercased()
+
+        // Pattern 1: "um HH:MM Uhr" or "um H:MM Uhr"
+        // Pattern 2: "at H:MM am/pm" or "at Hpm" / "at H am"
+        // Pattern 3: standalone HH:MM (24h)
+        // Pattern 4: "Num Uhr" e.g. "10 Uhr", "10:30 Uhr"
+        let patterns: [String] = [
+            #"(?:um\s+)(\d{1,2}):(\d{2})\s*uhr"#,
+            #"(?:at\s+)(\d{1,2}):(\d{2})\s*(am|pm)"#,
+            #"(?:at\s+)(\d{1,2})\s*(am|pm)"#,
+            #"(\d{1,2}):(\d{2})\s*uhr"#,
+            #"\b(\d{1,2})\s+uhr\b"#,
+            #"\b(\d{1,2}):(\d{2})\b"#,
+        ]
+
+        for pattern in patterns {
+            guard let match = firstMatch(pattern, in: lower),
+                  let fullRange = Range(match.range, in: lower) else { continue }
+
+            let g1 = groupString(match, group: 1, in: lower).flatMap(Int.init) ?? 0
+            let g2 = groupString(match, group: 2, in: lower).flatMap(Int.init)
+            let ampm = groupString(match, group: match.numberOfRanges > 3 ? 3 : 2, in: lower) ?? ""
+
+            var hour = g1
+            let minute = g2 ?? 0
+            if ampm == "pm" && hour < 12 { hour += 12 }
+            if ampm == "am" && hour == 12 { hour = 0 }
+
+            guard hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 else { continue }
+            text.removeSubrange(fullRange)
+            text = text.trimmingCharacters(in: .init(charactersIn: " ,"))
+            return (hour, minute)
+        }
+        return nil
     }
 
     private static func extractRelativeDate(from text: inout String) -> Date? {
@@ -174,7 +307,6 @@ enum SmartInputParser {
         let now = Date()
         let lower = text.lowercased()
 
-        // ── Explicit named days (highest priority, most unambiguous) ──
         let namedDays: [(pattern: String, offset: Int)] = [
             (#"(?<!\w)(übermorgen|day after tomorrow)(?!\w)"#, 2),
             (#"(?<!\w)(morgen|tomorrow)(?!\w)"#,               1),
@@ -184,14 +316,12 @@ enum SmartInputParser {
             if let match = firstMatch(pattern, in: lower), let range = Range(match.range, in: lower) {
                 let date = cal.date(byAdding: .day, value: offset, to: now)!
                 text.removeSubrange(range)
-                // clean up stray comma/space left behind
                 let trimmed = text.trimmingCharacters(in: .init(charactersIn: ", ").union(.whitespaces))
                 text = trimmed
                 return cal.startOfDay(for: date)
             }
         }
 
-        // ── "nächste Woche" / "next week" / "nächsten Monat" / "next month" ──
         let nextPeriodPatterns: [(String, DateComponents)] = [
             (#"(?<!\w)(nächste[nr]?\s+woche|next\s+week)(?!\w)"#,  DateComponents(day: 7)),
             (#"(?<!\w)(nächsten?\s+monat|next\s+month)(?!\w)"#,    DateComponents(month: 1)),
@@ -211,8 +341,8 @@ enum SmartInputParser {
             let unit      = groupString(match, group: 2, in: lower) ?? ""
             let n = wordToInt(numberStr) ?? Int(numberStr) ?? 1
             var comps = DateComponents()
-            if unit.hasPrefix("day") || unit.hasPrefix("tag")   { comps.day   = n }
-            if unit.hasPrefix("week") || unit.hasPrefix("woch") { comps.day   = n * 7 }
+            if unit.hasPrefix("day") || unit.hasPrefix("tag")    { comps.day   = n }
+            if unit.hasPrefix("week") || unit.hasPrefix("woch")  { comps.day   = n * 7 }
             if unit.hasPrefix("month") || unit.hasPrefix("mona") { comps.month = n }
             if let date = cal.date(byAdding: comps, to: now) {
                 text.removeSubrange(range)
@@ -270,14 +400,9 @@ enum SmartInputParser {
               let date = match.date,
               let matchRange = Range(match.range, in: text) else { return nil }
 
-        // Reject matches that are too short — a single number like "3" or "03"
-        // is almost certainly not an intended date (causes the "April 03" bug).
-        // A real date string needs at least 5 characters (e.g. "15.04" or "Apr 5").
         let matchedText = String(text[matchRange])
         guard matchedText.count >= 5 else { return nil }
 
-        // Reject dates in the past — if the detector guessed wrong the result
-        // is always a past date (e.g. yesterday). Only future dates or today are valid.
         let dayStart = Calendar.current.startOfDay(for: date)
         let today    = Calendar.current.startOfDay(for: Date())
         guard dayStart >= today else { return nil }
@@ -305,19 +430,6 @@ enum SmartInputParser {
     }
 
     // MARK: – Helpers
-
-    private static func capitalize(_ s: String) -> String {
-        var result = s
-        let fillers = ["i need to ","i have to ","i must ","i should ","i want to ",
-                       "ich muss ","ich soll ","ich möchte ","ich will ",
-                       "please ","bitte ","remind me to ","don't forget to "]
-        for f in fillers {
-            if result.lowercased().hasPrefix(f) { result = String(result.dropFirst(f.count)); break }
-        }
-        result = result.trimmingCharacters(in: CharacterSet.punctuationCharacters.union(.whitespaces))
-        guard let first = result.first else { return result }
-        return first.uppercased() + result.dropFirst()
-    }
 
     private static func nextWeekday(_ weekday: Int, from date: Date, calendar: Calendar) -> Date? {
         var comps = DateComponents(); comps.weekday = weekday

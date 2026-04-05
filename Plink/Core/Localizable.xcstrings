@@ -3157,13 +3157,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die smarte Eingabe ermöglicht es, Aufgaben in natürlicher Sprache zu beschreiben. Plink erkennt automatisch Titel, Datum und Priorität — ohne manuelle Eingabe."
+            "value" : "Die smarte Eingabe erlaubt dir, Aufgaben mit Tokens zu erfassen — schnell, tippfreundlich und zuverlässig. Tokens beginnen mit einem Symbol (@, @@, #, !) und werden direkt im Eingabefeld geschrieben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Smart Input lets you describe a task in plain, natural language. Plink automatically extracts the title, due date and priority from your text — no need to set them manually."
+            "value" : "Smart Input lets you capture tasks using tokens — fast, keyboard-friendly and reliable. Tokens start with a symbol (@, @@, #, !) and are typed directly in the input field."
           }
         }
       }
@@ -3225,18 +3225,52 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "• \"Morgen John anrufen, dringend\" → Titel: John anrufen · Datum: Morgen · Priorität: Hoch\n• \"Lebensmittel in zwei Wochen kaufen\" → Titel: Lebensmittel kaufen · Datum: in 14 Tagen\n• \"Mittwoch, Präsentation vorbereiten\" → Titel: Präsentation vorbereiten · Datum: nächsten Mittwoch\n• \"Team-Meeting nächsten Montag, wichtig\" → Titel: Team-Meeting · Datum: nächsten Montag · Priorität: Mittel"
+            "value" : "@  Datum — @today · @tomorrow · @monday · @10.05.\n@@ Uhrzeit — @@10:00 · @@14:30\n#  Gruppe — #Peter Park  (Leerzeichen erlaubt)\n!  Flag — !h (high) · !m (medium) · !l (low) · !b (blocked) · !x (blocking)"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "• \"Call John tomorrow, urgent\" → Title: Call John · Due: Tomorrow · Priority: High\n• \"Buy groceries in two weeks\" → Title: Buy groceries · Due: in 14 days\n• \"Wednesday, prepare the presentation\" → Title: Prepare the presentation · Due: next Wednesday\n• \"Team sync next Monday, important\" → Title: Team sync · Due: next Monday · Priority: Medium"
+            "value" : "@  Date — @today · @tomorrow · @monday · @10.05.\n@@ Time — @@10:00 · @@14:30\n#  Group — #Peter Park  (spaces allowed)\n!  Flag — !h (high) · !m (medium) · !l (low) · !b (blocked) · !x (blocking)"
           }
         }
       }
     },
     "help.smart.s3.heading" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Token-Syntax"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Token syntax"
+          }
+        }
+      }
+    },
+    "help.smart.s4.body" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Meeting @tomorrow @@10:00 #Arbeit !h\n  → Titel: Meeting · Morgen 10:00 · Gruppe: Arbeit · Hoch\n\n• Zahnarzt @10.05. @@14:30 !m\n  → Titel: Zahnarzt · 10. Mai 14:30 · Mittel\n\n• Bericht abgeben @friday #Privat !x\n  → Titel: Bericht abgeben · Nächsten Freitag · Gruppe: Privat · Ich blockiere"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "• Meeting @tomorrow @@10:00 #Work !h\n  → Title: Meeting · Tomorrow 10:00 · Group: Work · High\n\n• Dentist @10.05. @@14:30 !m\n  → Title: Dentist · May 10 14:30 · Medium\n\n• Submit report @friday #Private !x\n  → Title: Submit report · Next Friday · Group: Private · Blocking"
+          }
+        }
+      }
+    },
+    "help.smart.s4.heading" : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
@@ -3248,41 +3282,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Example inputs"
-          }
-        }
-      }
-    },
-    "help.smart.s4.body" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Heute · Morgen · Nächsten/diesen [Wochentag] · [Wochentag] in X Wochen · In X Tagen/Wochen/Monaten · Absolute Daten (z.B. 15. Januar)"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Today · Tomorrow · Next/this [weekday] · [Weekday] in X weeks · In X days/weeks/months · Absolute dates (e.g. January 15)"
-          }
-        }
-      }
-    },
-    "help.smart.s4.heading" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unterstützte Datumsangaben"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supported date expressions"
+            "value" : "Examples"
           }
         }
       }
@@ -3293,13 +3293,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoch: dringend, sofort, kritisch, super dringend, sofort\nMittel: wichtig, bald\nNiedrig: irgendwann, kein Stress"
+            "value" : "Sobald du ein Token-Symbol tippst, erscheinen passende Vorschläge. Mit ↹ Tab übernimmst du den ersten Vorschlag und kannst direkt weitertippen.\n\n• # → zeigt bestehende Gruppen gefiltert nach Eingabe\n• ! → zeigt !h · !m · !l · !b · !x\n• @ → zeigt Datums-Kurzwörter\n• @@ → zeigt Uhrzeiten"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "High: urgent, asap, critical, super urgent, immediately\nMedium: important, soon\nLow: whenever, someday, no rush"
+            "value" : "As soon as you type a token symbol, matching suggestions appear. Press ↹ Tab to accept the top suggestion and keep typing.\n\n• # → shows existing groups filtered by your input\n• ! → shows !h · !m · !l · !b · !x\n• @ → shows date keywords\n• @@ → shows time suggestions"
           }
         }
       }
@@ -3310,13 +3310,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unterstützte Prioritätswörter"
+            "value" : "Autocomplete & Tab"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Supported priority words"
+            "value" : "Autocomplete & Tab"
           }
         }
       }
@@ -3327,13 +3327,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deutsche Schlüsselwörter werden unterstützt: dringend, sofort, wichtig, bald, irgendwann."
+            "value" : "Die Anleitung kann im Eingabefeld mit \"Ausblenden\" versteckt werden. Mit dem ?-Button lässt sie sich jederzeit wieder einblenden."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "German keywords are also supported: dringend, sofort, wichtig, bald, irgendwann."
+            "value" : "The guide can be hidden in the input panel using \"Hide\". Tap the ? button to show it again at any time."
           }
         }
       }
@@ -3344,13 +3344,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auf macOS 26+ mit aktivierter Apple Intelligence verwendet die smarte Eingabe das lokale Sprachmodell für beste Ergebnisse. Auf älteren Systemen wird Apples Natural-Language-Framework verwendet — etwas weniger präzise, aber vollständig privat."
+            "value" : "Tokens werden stets aus dem Titel entfernt — auch wenn der Wert ungültig ist.\n\n• @32.12. → kein gültiges Datum → Task ohne Datum\n• !xyz → unbekanntes Keyword → ignoriert (keine Prio gesetzt)\n• #Pravit → kein Gruppen-Match → Task ohne Gruppe\n\nKein Fehler-Dialog. Die Eingabe wird immer gespeichert."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "On macOS 26+ with Apple Intelligence enabled, Smart Input uses the on-device language model for best results. On earlier systems it uses Apple's Natural Language framework — slightly less precise but fully private."
+            "value" : "Tokens are always stripped from the title — even if the value is invalid.\n\n• @32.12. → invalid date → task saved without date\n• !xyz → unknown keyword → ignored (no priority set)\n• #Prvate → no group match → task saved without group\n\nNo error dialogs. The task is always saved."
           }
         }
       }
@@ -3361,13 +3361,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Engine"
+            "value" : "Unbekannte Werte & Fehlerbehandlung"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Engine"
+            "value" : "Unknown values & error handling"
           }
         }
       }
@@ -3378,13 +3378,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle Verarbeitung erfolgt auf dem Gerät. Es werden keine Daten an Server gesendet."
+            "value" : "Alle Verarbeitung erfolgt lokal auf dem Gerät. Es werden keine Daten an Server gesendet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All processing is on-device. Nothing is sent to any server."
+            "value" : "All processing is local and on-device. Nothing is sent to any server."
           }
         }
       }
@@ -4776,6 +4776,72 @@
         }
       }
     },
+    "settings.fontSize.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passe die Textgröße in der Aufgabenliste und Detailansicht an."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust the text size in the task list and detail view."
+          }
+        }
+      }
+    },
+    "settings.fontSize.preview.desc" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschreibung der Aufgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Task description text"
+          }
+        }
+      }
+    },
+    "settings.fontSize.preview.title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beispiel-Aufgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Example Task"
+          }
+        }
+      }
+    },
+    "settings.fontSize.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schriftgröße"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Font Size"
+          }
+        }
+      }
+    },
     "settings.language.de" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5145,6 +5211,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permission Required"
+          }
+        }
+      }
+    },
+    "settings.notif.unavailable.desc" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Funktion ist technisch vollständig implementiert, steht jedoch momentan nicht zur Verfügung. Der Entwickler hat die App noch nicht offiziell bei Apple eingereicht. Sobald dies erfolgt ist, werden Benachrichtigungen automatisch freigeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This feature is fully implemented but currently unavailable. The developer has not yet officially submitted the app to Apple. Once that happens, notifications will be unlocked automatically."
+          }
+        }
+      }
+    },
+    "settings.notif.unavailable.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benachrichtigungen nicht verfügbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifications not available"
           }
         }
       }
@@ -5767,19 +5867,219 @@
         }
       }
     },
+    "smart.hints.date.example" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@heute · @morgen · @montag · @10.05."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "@today · @tomorrow · @monday · @10.05."
+          }
+        }
+      }
+    },
+    "smart.hints.example" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bsp: Laura anrufen @morgen @@12:00 #Privat !h !x"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Call Laura @tomorrow @@12:00 #Private !h !x"
+          }
+        }
+      }
+    },
+    "smart.hints.hide" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide"
+          }
+        }
+      }
+    },
+    "smart.hints.insert" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einfügen:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insert:"
+          }
+        }
+      }
+    },
+    "smart.hints.reshow" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anleitung einblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show guide"
+          }
+        }
+      }
+    },
+    "smart.hints.syntax" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syntax"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syntax"
+          }
+        }
+      }
+    },
+    "smart.hints.tab" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "↹ Tab: Vorschlag übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "↹ Tab: Accept suggestion"
+          }
+        }
+      }
+    },
+    "smart.hints.unknown" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbekannte Werte ignoriert. Token stets aus Titel entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown values ignored. Tokens always stripped from title."
+          }
+        }
+      }
+    },
+    "smart.mode.date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "smart.mode.group" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gruppe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group"
+          }
+        }
+      }
+    },
+    "smart.mode.priority" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priorität"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priority"
+          }
+        }
+      }
+    },
+    "smart.mode.time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
     "smart.placeholder" : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "z.B. Morgen John anrufen, dringend…"
+            "value" : "Aufgabe @morgen @@10:00 #Gruppe !hoch"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "e.g. Call John tomorrow, urgent…"
+            "value" : "Task @tomorrow @@10:00 #Group !high"
           }
         }
       }
@@ -5814,6 +6114,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Smart"
+          }
+        }
+      }
+    },
+    "smart.token.date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "smart.token.flag" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flag"
+          }
+        }
+      }
+    },
+    "smart.token.group" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gruppe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group"
+          }
+        }
+      }
+    },
+    "smart.token.time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
           }
         }
       }

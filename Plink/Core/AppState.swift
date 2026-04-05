@@ -45,6 +45,9 @@ final class AppState: ObservableObject {
     @Published var smartInputEnabled: Bool {
         didSet { UserDefaults.standard.set(smartInputEnabled, forKey: "smartInputEnabled") }
     }
+    @Published var fontScale: Double {
+        didSet { UserDefaults.standard.set(fontScale, forKey: "fontScale") }
+    }
     @Published var appLanguage: String {
         didSet {
             UserDefaults.standard.set(appLanguage, forKey: "appLanguage")
@@ -60,6 +63,8 @@ final class AppState: ObservableObject {
         let savedAccent = UserDefaults.standard.string(forKey: "accentOption") ?? ""
         accentOption = AccentColorOption(rawValue: savedAccent) ?? .teal
         smartInputEnabled = UserDefaults.standard.bool(forKey: "smartInputEnabled")
+        let savedScale = UserDefaults.standard.double(forKey: "fontScale")
+        fontScale = savedScale == 0 ? 1.0 : savedScale
         appLanguage = LanguageManager.current
     }
 }

@@ -49,10 +49,10 @@ private struct StatPill: View {
     var body: some View {
         HStack(spacing: 5) {
             Text("\(value)")
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .scaledFont(size: 12, weight: .semibold, design: .rounded)
                 .foregroundStyle(color)
             Text(label)
-                .font(.system(size: 12))
+                .scaledFont(size: 12)
                 .foregroundStyle(color.opacity(0.85))
         }
         .padding(.horizontal, 9)
@@ -70,10 +70,10 @@ private struct QuietStat: View {
     var body: some View {
         HStack(spacing: 4) {
             Text("\(value)")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .scaledFont(size: 12, weight: .medium, design: .rounded)
                 .foregroundStyle(.secondary)
             Text(label)
-                .font(.system(size: 12))
+                .scaledFont(size: 12)
                 .foregroundStyle(.tertiary)
         }
     }

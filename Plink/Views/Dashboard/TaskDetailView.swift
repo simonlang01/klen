@@ -53,13 +53,13 @@ struct TaskDetailView: View {
             // ── Header bar ─────────────────────────────────────────
             HStack(spacing: 0) {
                 Text(LocalizedStringKey("task.edit"))
-                    .font(.system(size: 11, weight: .semibold))
+                    .scaledFont(size: 11, weight: .semibold)
                     .foregroundStyle(.secondary)
                     .padding(.leading, 18)
                 Spacer()
                 Button(action: { discardChanges = true; onClose() }) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(size: 11, weight: .semibold)
                         .foregroundStyle(.secondary)
                         .frame(width: 28, height: 28)
                         .background(Color.primary.opacity(0.06), in: Circle())
@@ -79,11 +79,11 @@ struct TaskDetailView: View {
                     // ── Title ──────────────────────────────────────
                     HStack(spacing: 12) {
                         Image(systemName: "square.and.pencil")
-                            .font(.system(size: 17))
+                            .scaledFont(size: 17)
                             .foregroundStyle(accent)
                         TextField(LocalizedStringKey("task.detail.title.placeholder"), text: $title, axis: .vertical)
                             .textFieldStyle(.plain)
-                            .font(.system(size: 17, weight: .semibold))
+                            .scaledFont(size: 17, weight: .semibold)
                             .lineLimit(1...4)
                             .focused($titleFocused)
                             .onSubmit { saveAndClose() }
@@ -100,14 +100,14 @@ struct TaskDetailView: View {
                     ZStack(alignment: .topLeading) {
                         if desc.isEmpty && !descFocused {
                             Text(LocalizedStringKey("task.desc.placeholder"))
-                                .font(.system(size: 14))
+                                .scaledFont(size: 14)
                                 .foregroundStyle(.tertiary)
                                 .padding(.top, 8)
                                 .padding(.leading, 5)
                                 .allowsHitTesting(false)
                         }
                         TextEditor(text: $desc)
-                            .font(.system(size: 14))
+                            .scaledFont(size: 14)
                             .foregroundStyle(.secondary)
                             .scrollContentBackground(.hidden)
                             .frame(minHeight: 72)
@@ -154,9 +154,9 @@ struct TaskDetailView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: priority == .none ? "flag" : "flag.fill")
-                                        .font(.system(size: 13))
+                                        .scaledFont(size: 13)
                                     Text(priority == .none ? NSLocalizedString("priority.none", comment: "") : priority.chipLabel)
-                                        .font(.system(size: 13))
+                                        .scaledFont(size: 13)
                                 }
                                 .foregroundStyle(priority == .none ? .secondary : priority.color)
                                 .padding(.horizontal, 10)
@@ -176,9 +176,9 @@ struct TaskDetailView: View {
                                     ForEach(groups) { g in Button(g.name) { selectedGroup = g } }
                                 } label: {
                                     HStack(spacing: 6) {
-                                        Image(systemName: "folder").font(.system(size: 13))
+                                        Image(systemName: "folder").scaledFont(size: 13)
                                         Text(selectedGroup?.name ?? NSLocalizedString("group.title", comment: ""))
-                                            .font(.system(size: 13))
+                                            .scaledFont(size: 13)
                                     }
                                     .foregroundStyle(selectedGroup == nil ? .secondary : accent)
                                     .padding(.horizontal, 10)
@@ -233,7 +233,7 @@ struct TaskDetailView: View {
                     onClose()
                 } label: {
                     Label(LocalizedStringKey("task.save"), systemImage: "checkmark")
-                        .font(.system(size: 13, weight: .medium))
+                        .scaledFont(size: 13, weight: .medium)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(accent)
@@ -340,8 +340,8 @@ struct BlockingChip: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
-                Image(systemName: icon).font(.system(size: 12))
-                Text(label).font(.system(size: 13))
+                Image(systemName: icon).scaledFont(size: 12)
+                Text(label).scaledFont(size: 13)
             }
             .foregroundStyle(isActive || hovering ? color : .secondary)
             .padding(.horizontal, 10)
@@ -370,8 +370,8 @@ private struct DetailChip: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 5) {
-                Image(systemName: icon).font(.system(size: 12))
-                Text(label).font(.system(size: 13)).lineLimit(1)
+                Image(systemName: icon).scaledFont(size: 12)
+                Text(label).scaledFont(size: 13).lineLimit(1)
             }
             .foregroundStyle(active || hovering ? accent : .secondary)
             .padding(.horizontal, 10)
@@ -396,11 +396,11 @@ struct ExtrasAttachmentsRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label(LocalizedStringKey("extras.attachments"), systemImage: "paperclip")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(size: 12, weight: .medium)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(action: onAdd) {
-                    Image(systemName: "plus").font(.system(size: 12))
+                    Image(systemName: "plus").scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -437,14 +437,14 @@ struct ExtrasLinksRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Label(LocalizedStringKey("extras.links"), systemImage: "link")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(size: 12, weight: .medium)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button {
                     showField = true
                     DispatchQueue.main.async { focused = true }
                 } label: {
-                    Image(systemName: "plus").font(.system(size: 12))
+                    Image(systemName: "plus").scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
@@ -460,11 +460,11 @@ struct ExtrasLinksRow: View {
                 HStack(spacing: 8) {
                     TextField("https://", text: $newLinkText)
                         .textFieldStyle(.plain)
-                        .font(.system(size: 13))
+                        .scaledFont(size: 13)
                         .focused($focused)
                         .onSubmit { commitLink() }
                     Button(action: commitLink) {
-                        Image(systemName: "return").font(.system(size: 11))
+                        Image(systemName: "return").scaledFont(size: 11)
                             .foregroundStyle(accent)
                     }
                     .buttonStyle(.plain)
@@ -497,7 +497,7 @@ struct ExtrasLocationRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 0) {
                 Label(LocalizedStringKey("extras.location"), systemImage: "mappin")
-                    .font(.system(size: 12, weight: .medium))
+                    .scaledFont(size: 12, weight: .medium)
                     .foregroundStyle(.secondary)
                 Spacer()
                 if !address.isEmpty {
@@ -507,7 +507,7 @@ struct ExtrasLocationRow: View {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
-                        Image(systemName: "arrow.up.forward.square").font(.system(size: 12))
+                        Image(systemName: "arrow.up.forward.square").scaledFont(size: 12)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
@@ -516,7 +516,7 @@ struct ExtrasLocationRow: View {
             }
             TextField(LocalizedStringKey("extras.location.placeholder"), text: $address, axis: .vertical)
                 .textFieldStyle(.plain)
-                .font(.system(size: 13))
+                .scaledFont(size: 13)
                 .lineLimit(1...3)
                 .onSubmit { onSubmit?() }
                 .padding(.horizontal, 10)
@@ -540,11 +540,11 @@ struct ExtrasItemRow: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .scaledFont(size: 12)
                 .foregroundStyle(.secondary)
                 .frame(width: 16)
             Text(label)
-                .font(.system(size: 13))
+                .scaledFont(size: 13)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
             Spacer()
@@ -552,7 +552,7 @@ struct ExtrasItemRow: View {
                 if let onOpen {
                     Button(action: onOpen) {
                         Image(systemName: "arrow.up.forward.square")
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.plain)
@@ -560,7 +560,7 @@ struct ExtrasItemRow: View {
                 }
                 Button(action: onRemove) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 10, weight: .semibold))
+                        .scaledFont(size: 10, weight: .semibold)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)

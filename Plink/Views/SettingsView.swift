@@ -51,7 +51,7 @@ private struct GeneralTab: View {
                                     }
                                 } label: {
                                     Text(LocalizedStringKey(key))
-                                        .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                                        .scaledFont(size: 12, weight: isSelected ? .semibold : .regular)
                                         .foregroundStyle(isSelected ? .white : .primary)
                                         .padding(.horizontal, 14)
                                         .padding(.vertical, 6)
@@ -66,12 +66,12 @@ private struct GeneralTab: View {
                         // Coming soon
                         HStack(spacing: 6) {
                             Text("🇪🇸")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                             Text(LocalizedStringKey("settings.language.spanish.soon"))
-                                .font(.system(size: 11))
+                                .scaledFont(size: 11)
                                 .foregroundStyle(.secondary)
                             Text(LocalizedStringKey("settings.language.spanish.badge"))
-                                .font(.system(size: 10, weight: .semibold))
+                                .scaledFont(size: 10, weight: .semibold)
                                 .foregroundStyle(accent)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -107,6 +107,14 @@ private struct GeneralTab: View {
                         }
                     }
                 }
+
+                Divider().padding(.horizontal, 20)
+
+                // Font size
+                SettingsRow(icon: "textformat.size", title: LocalizedStringKey("settings.fontSize.title"),
+                            desc: LocalizedStringKey("settings.fontSize.desc")) {
+                    FontScaleControl(scale: $appState.fontScale)
+                }
             }
             .padding(.vertical, 8)
         }
@@ -127,16 +135,16 @@ private struct SmartInputTab: View {
                 // Toggle
                 VStack(alignment: .leading, spacing: 6) {
                     Text(LocalizedStringKey("settings.smart.desc"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Toggle(isOn: $appState.smartInputEnabled) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(LocalizedStringKey("settings.smart.toggle"))
-                                .font(.system(size: 13))
+                                .scaledFont(size: 13)
                             Text(LocalizedStringKey("settings.smart.toggle.sub"))
-                                .font(.system(size: 11))
+                                .scaledFont(size: 11)
                                 .foregroundStyle(.tertiary)
                         }
                     }
@@ -150,15 +158,15 @@ private struct SmartInputTab: View {
                 let engine = SmartEngine.current
                 HStack(spacing: 10) {
                     Image(systemName: engine == .foundationModels ? "apple.intelligence" : "cpu")
-                        .font(.system(size: 20))
+                        .scaledFont(size: 20)
                         .foregroundStyle(engine == .foundationModels ? accent : .secondary)
                         .frame(width: 28)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(format: NSLocalizedString("settings.smart.engine", comment: ""), engine.label))
-                            .font(.system(size: 12, weight: .semibold))
+                            .scaledFont(size: 12, weight: .semibold)
                             .foregroundStyle(engine == .foundationModels ? accent : .primary)
                         Text(LocalizedStringKey(engine == .foundationModels ? "settings.smart.engine.ai.desc" : "settings.smart.engine.nlp.desc"))
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -199,20 +207,22 @@ private struct NotificationsTab: View {
     @Environment(\.appAccent) private var accent
 
     var body: some View {
-        ScrollView {
+        ZStack(alignment: .top) {
+            // Greyed-out content
+            ScrollView {
             VStack(alignment: .leading, spacing: 0) {
 
                 // Always-visible setup hint — macOS can't distinguish Banners vs Alerts in code
                 if nm.authStatus == .authorized {
                     HStack(spacing: 12) {
                         Image(systemName: "bell.badge.fill")
-                            .font(.system(size: 20))
+                            .scaledFont(size: 20)
                             .foregroundStyle(accent)
                         VStack(alignment: .leading, spacing: 3) {
                             Text(LocalizedStringKey("settings.notif.alertstyle.title"))
-                                .font(.system(size: 12, weight: .semibold))
+                                .scaledFont(size: 12, weight: .semibold)
                             Text(LocalizedStringKey("settings.notif.alertstyle.desc"))
-                                .font(.system(size: 11))
+                                .scaledFont(size: 11)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -221,7 +231,7 @@ private struct NotificationsTab: View {
                             NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!)
                         } label: {
                             Text(LocalizedStringKey("settings.notif.alertstyle.button"))
-                                .font(.system(size: 11, weight: .medium))
+                                .scaledFont(size: 11, weight: .medium)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
@@ -239,14 +249,14 @@ private struct NotificationsTab: View {
                 if nm.authStatus != .authorized {
                     HStack(spacing: 10) {
                         Image(systemName: "bell.slash")
-                            .font(.system(size: 16))
+                            .scaledFont(size: 16)
                             .foregroundStyle(.orange)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(LocalizedStringKey("settings.notif.permission.title"))
-                                .font(.system(size: 12, weight: .semibold))
+                                .scaledFont(size: 12, weight: .semibold)
                                 .foregroundStyle(.orange)
                             Text(LocalizedStringKey("settings.notif.permission.desc"))
-                                .font(.system(size: 11))
+                                .scaledFont(size: 11)
                                 .foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -293,7 +303,7 @@ private struct NotificationsTab: View {
                     if let until = nm.muteUntil {
                         HStack {
                             Label(muteLabel(until), systemImage: "moon.fill")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                                 .foregroundStyle(accent)
                             Spacer()
                             Button(LocalizedStringKey("settings.notif.mute.unmute")) {
@@ -331,10 +341,10 @@ private struct NotificationsTab: View {
                                 let muted = nm.mutedGroupIDs.contains(group.id.uuidString)
                                 HStack {
                                     Image(systemName: "folder")
-                                        .font(.system(size: 12))
+                                        .scaledFont(size: 12)
                                         .foregroundStyle(muted ? .secondary : accent)
                                     Text(group.name)
-                                        .font(.system(size: 13))
+                                        .scaledFont(size: 13)
                                         .foregroundStyle(muted ? .secondary : .primary)
                                     Spacer()
                                     Toggle("", isOn: Binding(
@@ -363,6 +373,30 @@ private struct NotificationsTab: View {
         }
         .frame(minHeight: 260)
         .onAppear { Task { await nm.refreshAuthStatus() } }
+        .disabled(true)
+        .opacity(0.35)
+        .blur(radius: 0.5)
+
+            // Unavailability banner
+            VStack(spacing: 12) {
+                Image(systemName: "bell.slash")
+                    .scaledFont(size: 28, weight: .light)
+                    .foregroundStyle(.secondary)
+                Text(LocalizedStringKey("settings.notif.unavailable.title"))
+                    .scaledFont(size: 13, weight: .semibold)
+                    .multilineTextAlignment(.center)
+                Text(LocalizedStringKey("settings.notif.unavailable.desc"))
+                    .scaledFont(size: 12)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: 320)
+            }
+            .padding(24)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+            .shadow(color: .black.opacity(0.12), radius: 16, y: 4)
+            .padding(.top, 60)
+        }
     }
 
     private func muteLabel(_ until: Date) -> String {
@@ -381,7 +415,7 @@ private struct ShortcutTab: View {
             VStack(alignment: .leading, spacing: 16) {
 
                 Text(LocalizedStringKey("settings.shortcut.desc"))
-                    .font(.system(size: 12))
+                    .scaledFont(size: 12)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 20)
@@ -391,9 +425,9 @@ private struct ShortcutTab: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(LocalizedStringKey("settings.shortcut.label"))
-                            .font(.system(size: 13))
+                            .scaledFont(size: 13)
                         Text(LocalizedStringKey("settings.shortcut.default"))
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.tertiary)
                     }
                     Spacer()
@@ -404,9 +438,9 @@ private struct ShortcutTab: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(LocalizedStringKey("settings.shortcut.focusMode.label"))
-                            .font(.system(size: 13))
+                            .scaledFont(size: 13)
                         Text(LocalizedStringKey("settings.shortcut.focusMode.default"))
-                            .font(.system(size: 11))
+                            .scaledFont(size: 11)
                             .foregroundStyle(.tertiary)
                     }
                     Spacer()
@@ -419,7 +453,7 @@ private struct ShortcutTab: View {
                 // How to change
                 VStack(alignment: .leading, spacing: 8) {
                     Label(LocalizedStringKey("settings.shortcut.howto"), systemImage: "info.circle")
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(size: 11, weight: .semibold)
                         .foregroundStyle(.secondary)
                     VStack(alignment: .leading, spacing: 6) {
                         HelpRow(step: "1", text: NSLocalizedString("settings.shortcut.step1", comment: ""))
@@ -455,13 +489,13 @@ private struct AdvancedTab: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "externaldrive")
-                            .font(.system(size: 16))
+                            .scaledFont(size: 16)
                             .foregroundStyle(accent)
                         Text(LocalizedStringKey("settings.backup.title"))
-                            .font(.system(size: 15, weight: .semibold))
+                            .scaledFont(size: 15, weight: .semibold)
                     }
                     Text(LocalizedStringKey("settings.backup.desc"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 10) {
@@ -470,7 +504,7 @@ private struct AdvancedTab: View {
                             Task { await BackupManager.shared.export(context: ctx); isBusy = false }
                         } label: {
                             Label(LocalizedStringKey("settings.backup.export"), systemImage: "square.and.arrow.up")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(accent)
@@ -482,7 +516,7 @@ private struct AdvancedTab: View {
                             Task { await BackupManager.shared.import(context: ctx); isBusy = false }
                         } label: {
                             Label(LocalizedStringKey("settings.backup.import"), systemImage: "square.and.arrow.down")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
@@ -501,24 +535,24 @@ private struct AdvancedTab: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.counterclockwise")
-                            .font(.system(size: 16))
+                            .scaledFont(size: 16)
                             .foregroundStyle(.red.opacity(0.7))
                         Text(LocalizedStringKey("settings.reset.title"))
-                            .font(.system(size: 15, weight: .semibold))
+                            .scaledFont(size: 15, weight: .semibold)
                     }
 
                     Text(LocalizedStringKey("settings.reset.desc"))
-                        .font(.system(size: 12))
+                        .scaledFont(size: 12)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(String(format: NSLocalizedString("settings.reset.summary", comment: ""), allItems.count, allGroups.count))
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                                 .foregroundStyle(.secondary)
                             Text(LocalizedStringKey("settings.reset.permanent"))
-                                .font(.system(size: 11))
+                                .scaledFont(size: 11)
                                 .foregroundStyle(.tertiary)
                         }
                         Spacer()
@@ -526,7 +560,7 @@ private struct AdvancedTab: View {
                             showResetConfirm = true
                         } label: {
                             Label(LocalizedStringKey("settings.reset.button"), systemImage: "trash")
-                                .font(.system(size: 12))
+                                .scaledFont(size: 12)
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.red.opacity(0.85))
@@ -574,11 +608,11 @@ private struct SettingsRow<Content: View>: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 16))
+                    .scaledFont(size: 16)
                     .foregroundStyle(accent)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(.system(size: 13, weight: .semibold))
-                    Text(desc).font(.system(size: 11)).foregroundStyle(.secondary)
+                    Text(title).scaledFont(size: 13, weight: .semibold)
+                    Text(desc).scaledFont(size: 11).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -606,7 +640,7 @@ private struct AccentColorSwatch: View {
                         .frame(width: 28, height: 28)
                     if isSelected {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 11, weight: .bold))
+                            .scaledFont(size: 11, weight: .bold)
                             .foregroundStyle(.white)
                     }
                 }
@@ -620,7 +654,7 @@ private struct AccentColorSwatch: View {
                 .padding(4)
 
                 Text(option.label)
-                    .font(.system(size: 9))
+                    .scaledFont(size: 9)
                     .foregroundStyle(isSelected ? option.color : .secondary)
             }
         }
@@ -665,8 +699,8 @@ private struct AppearanceCard: View {
                     }
                 }
                 HStack(spacing: 4) {
-                    Image(systemName: mode.icon).font(.system(size: 10))
-                    Text(mode.label).font(.system(size: 11, weight: .medium))
+                    Image(systemName: mode.icon).scaledFont(size: 10)
+                    Text(mode.label).scaledFont(size: 11, weight: .medium)
                 }
                 .foregroundStyle(isSelected ? accent : .secondary)
             }
@@ -696,14 +730,73 @@ private struct HelpRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             Text(step)
-                .font(.system(size: 10, weight: .bold))
+                .scaledFont(size: 10, weight: .bold)
                 .foregroundStyle(isWarning ? .orange : accent)
                 .frame(width: 16, height: 16)
                 .background((isWarning ? Color.orange : accent).opacity(0.12), in: Circle())
             Text(text)
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(isWarning ? Color.orange.opacity(0.9) : .secondary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+// MARK: – Font scale control
+
+private struct FontScaleControl: View {
+    @Binding var scale: Double
+    @Environment(\.appAccent) private var accent
+
+    // Steps: 0.75, 0.85, 1.0, 1.15, 1.30, 1.50
+    private let steps: [Double] = [0.75, 0.85, 1.0, 1.15, 1.30, 1.50]
+    private let labels = ["XS", "S", "M", "L", "XL", "XXL"]
+
+    private var currentStep: Int {
+        // Find nearest step
+        steps.indices.min(by: { abs(steps[$0] - scale) < abs(steps[$1] - scale) }) ?? 2
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Preview
+            HStack(spacing: 12) {
+                Image(systemName: "checkmark.circle.fill")
+                    .scaledFont(size: 14)
+                    .foregroundStyle(accent)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(NSLocalizedString("settings.fontSize.preview.title", comment: ""))
+                        .scaledFont(size: 13.5, weight: .medium)
+                    Text(NSLocalizedString("settings.fontSize.preview.desc", comment: ""))
+                        .scaledFont(size: 12)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
+
+            // Step buttons
+            HStack(spacing: 0) {
+                ForEach(steps.indices, id: \.self) { i in
+                    let isSelected = currentStep == i
+                    Button {
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                            scale = steps[i]
+                        }
+                    } label: {
+                        Text(labels[i])
+                            .scaledFont(size: 11, weight: isSelected ? .semibold : .regular)
+                            .foregroundStyle(isSelected ? .white : .primary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 5)
+                            .background(isSelected ? accent : Color.clear, in: RoundedRectangle(cornerRadius: 6))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(3)
+            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 9))
         }
     }
 }

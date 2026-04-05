@@ -99,7 +99,7 @@ struct OnboardingView: View {
                         advance()
                     } label: {
                         Text(LocalizedStringKey(currentStep == steps.count - 1 ? "onboarding.button.getStarted" : "onboarding.button.continue"))
-                            .font(.system(size: 14, weight: .semibold))
+                            .scaledFont(size: 14, weight: .semibold)
                             .frame(width: 200)
                             .padding(.vertical, 11)
                             .background(accent, in: RoundedRectangle(cornerRadius: 12))
@@ -110,7 +110,7 @@ struct OnboardingView: View {
 
                     if currentStep < steps.count - 1 {
                         Button(LocalizedStringKey("onboarding.button.skip")) { finish() }
-                            .font(.system(size: 12))
+                            .scaledFont(size: 12)
                             .foregroundStyle(.tertiary)
                             .buttonStyle(.plain)
                     } else {
@@ -136,19 +136,19 @@ struct OnboardingView: View {
                     .fill(step.iconColor.opacity(0.12))
                     .frame(width: 88, height: 88)
                 Image(systemName: step.icon)
-                    .font(.system(size: 38, weight: .medium))
+                    .scaledFont(size: 38, weight: .medium)
                     .foregroundStyle(step.iconColor)
             }
             .padding(.bottom, 28)
 
             // Title + subtitle
             Text(step.title)
-                .font(.system(size: 24, weight: .bold))
+                .scaledFont(size: 24, weight: .bold)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 8)
 
             Text(step.subtitle)
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 20)
@@ -158,7 +158,7 @@ struct OnboardingView: View {
                 accentPickerRow
             } else if let body = step.body {
                 Text(body)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(4)
@@ -183,7 +183,7 @@ struct OnboardingView: View {
                             .frame(width: 34, height: 34)
                         if appState.accentOption == option {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 13, weight: .bold))
+                                .scaledFont(size: 13, weight: .bold)
                                 .foregroundStyle(.white)
                         }
                     }

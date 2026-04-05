@@ -27,11 +27,11 @@ struct SectionHeaderView: View {
                 .frame(width: 16)
 
             Text(label)
-                .font(.system(size: 11, weight: .medium))
+                .scaledFont(size: 11, weight: .medium)
                 .foregroundStyle(labelColor)
 
             Text("\(count)")
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(labelColor.opacity(0.5))
 
             Rectangle()

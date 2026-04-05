@@ -23,18 +23,18 @@ struct MiniCalendarPicker: View {
         VStack(spacing: 12) {
             HStack {
                 Button { shiftMonth(-1) } label: {
-                    Image(systemName: "chevron.left").font(.system(size: 12, weight: .semibold))
+                    Image(systemName: "chevron.left").scaledFont(size: 12, weight: .semibold)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
 
                 Spacer()
                 Text(Self.monthFormatter.string(from: displayMonth))
-                    .font(.system(size: 13, weight: .semibold))
+                    .scaledFont(size: 13, weight: .semibold)
                 Spacer()
 
                 Button { shiftMonth(1) } label: {
-                    Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
+                    Image(systemName: "chevron.right").scaledFont(size: 12, weight: .semibold)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
@@ -44,7 +44,7 @@ struct MiniCalendarPicker: View {
             LazyVGrid(columns: columns, spacing: 0) {
                 ForEach(syms.indices, id: \.self) { i in
                     Text(syms[i])
-                        .font(.system(size: 10, weight: .medium))
+                        .scaledFont(size: 10, weight: .medium)
                         .foregroundStyle(.tertiary)
                         .frame(height: 24)
                 }
@@ -62,7 +62,7 @@ struct MiniCalendarPicker: View {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { onConfirm() }
                         } label: {
                             Text("\(cal.component(.day, from: date))")
-                                .font(.system(size: 12, weight: isSelected || isToday ? .semibold : .regular))
+                                .scaledFont(size: 12, weight: isSelected || isToday ? .semibold : .regular)
                                 .foregroundStyle(
                                     isSelected ? Color.white :
                                     isToday    ? accent :

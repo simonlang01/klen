@@ -82,10 +82,10 @@ struct ActivityLogView: View {
     private var emptyState: some View {
         VStack(spacing: 10) {
             Image(systemName: "chart.bar.doc.horizontal")
-                .font(.system(size: 36, weight: .ultraLight))
+                .scaledFont(size: 36, weight: .ultraLight)
                 .foregroundStyle(accent.opacity(0.4))
             Text(LocalizedStringKey("activitylog.empty"))
-                .font(.system(size: 15))
+                .scaledFont(size: 15)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -112,12 +112,12 @@ private struct DayHeader: View {
     var body: some View {
         HStack(spacing: 6) {
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
+                .scaledFont(size: 11, weight: .semibold)
                 .foregroundStyle(isToday ? accent : .secondary)
                 .textCase(.uppercase)
                 .tracking(0.5)
             Text("\(count)")
-                .font(.system(size: 10, weight: .medium))
+                .scaledFont(size: 10, weight: .medium)
                 .foregroundStyle(.tertiary)
             Spacer()
         }
@@ -160,23 +160,23 @@ private struct EventRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .scaledFont(size: 14)
                 .foregroundStyle(iconColor)
                 .frame(width: 22)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
-                    .font(.system(size: 13))
+                    .scaledFont(size: 13)
                     .foregroundStyle(event.kind == .deleted ? .secondary : .primary)
                     .strikethrough(event.kind == .deleted, color: .secondary)
                     .lineLimit(1)
                 HStack(spacing: 4) {
                     Text(kindLabel)
-                        .font(.system(size: 11))
+                        .scaledFont(size: 11)
                         .foregroundStyle(.tertiary)
                     if let group = event.groupName {
-                        Text("·").font(.system(size: 11)).foregroundStyle(.tertiary)
-                        Text(group).font(.system(size: 11)).foregroundStyle(.tertiary)
+                        Text("·").scaledFont(size: 11).foregroundStyle(.tertiary)
+                        Text(group).scaledFont(size: 11).foregroundStyle(.tertiary)
                     }
                 }
             }
@@ -184,7 +184,7 @@ private struct EventRow: View {
             Spacer()
 
             Text(timeFmt.string(from: event.date))
-                .font(.system(size: 11))
+                .scaledFont(size: 11)
                 .foregroundStyle(.quaternary)
         }
         .padding(.horizontal, 20)
