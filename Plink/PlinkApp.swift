@@ -38,6 +38,7 @@ struct PlinkApp: App {
                 .modelContainer(PersistenceController.shared.container)
                 .environmentObject(appState)
                 .environment(\.appFontScale, appState.fontScale)
+                .environment(\.appFontStyle, appState.fontStyle)
                 .onAppear { setup() }
         }
         .windowStyle(.hiddenTitleBar)
@@ -55,6 +56,8 @@ struct PlinkApp: App {
         Settings {
             SettingsView()
                 .environmentObject(appState)
+                .environment(\.appFontScale, appState.fontScale)
+                .environment(\.appFontStyle, appState.fontStyle)
                 .modelContainer(PersistenceController.shared.container)
         }
     }

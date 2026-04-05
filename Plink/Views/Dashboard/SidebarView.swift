@@ -196,7 +196,7 @@ struct SidebarView: View {
             }
             .padding(.bottom, 8)
         }
-        .frame(minWidth: 180, maxWidth: 220)
+        .frame(maxWidth: .infinity)
         .background(.background)
         .confirmationDialog(
             groupPendingDelete.map { String(format: NSLocalizedString("group.delete.confirm.title", comment: ""), $0.name) } ?? "",
@@ -344,7 +344,8 @@ private struct SidebarRow: View {
                     Text(label)
                         .scaledFont(size: 13, weight: isSelected ? .medium : .regular)
                         .foregroundStyle(isSelected ? .primary : .secondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                         .animation(.easeInOut(duration: 0.12), value: isSelected)
 
                     Spacer()

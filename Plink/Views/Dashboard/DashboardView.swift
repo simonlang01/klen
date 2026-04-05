@@ -9,7 +9,7 @@ struct DashboardView: View {
     @EnvironmentObject private var appState: AppState
     @State private var showAddSheet = false
     @State private var showTrash = false
-    @State private var showHelp = false
+    @State private var helpWindow: NSWindow?
     @State private var showActivityLog = false
     @State private var selectedItem: TodoItem?
     @State private var showCelebration = false
@@ -23,7 +23,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $splitVisibility) {
             SidebarView(groupFilter: $vm.groupFilter, showTrash: $showTrash, showActivityLog: $showActivityLog)
-                .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 260)
+                .navigationSplitViewColumnWidth(min: 190, ideal: 210, max: 400)
         } detail: {
             HStack(spacing: 0) {
                 // ── Task list or activity log ──────────────────────
@@ -64,10 +64,6 @@ struct DashboardView: View {
         .toolbar { toolbarContent }
         .navigationTitle("")
         .frame(minWidth: 720, minHeight: 500)
-        .sheet(isPresented: $showHelp) {
-            HelpView()
-                .environment(\.appAccent, appState.accentOption.color)
-        }
         .onChange(of: showTrash) { if $1 { showActivityLog = false } }
         .onChange(of: showActivityLog) { if $1 { showTrash = false } }
         .onChange(of: vm.groupFilter) { _, newFilter in
@@ -281,7 +277,7 @@ struct DashboardView: View {
         }
         ToolbarItem(placement: .automatic) {
             Button {
-                showHelp = true
+                openHelpWindow()
             } label: {
                 Image(systemName: "questionmark.circle")
                     .foregroundStyle(.secondary)
@@ -291,6 +287,26 @@ struct DashboardView: View {
     }
 
     // MARK: Actions
+
+    private func openHelpWindow() {
+        if let w = helpWindow, w.isVisible { w.makeKeyAndOrderFront(nil); return }
+        let view = HelpView()
+            .environment(\.appAccent, appState.accentOption.color)
+            .environment(\.appFontScale, appState.fontScale)
+            .environment(\.appFontStyle, appState.fontStyle)
+        let host = NSHostingView(rootView: view)
+        let window = NSWindow(contentViewController: NSViewController())
+        window.contentView = host
+        window.styleMask = [.titled, .closable, .resizable, .fullSizeContentView]
+        window.title = ""
+        window.titlebarAppearsTransparent = true
+        window.setContentSize(NSSize(width: 680, height: 480))
+        window.minSize = NSSize(width: 540, height: 360)
+        window.center()
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+        helpWindow = window
+    }
 
     private func complete(_ item: TodoItem) {
         let wasCompleted = item.isCompleted

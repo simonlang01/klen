@@ -148,6 +148,9 @@ extension HelpTopic {
         id: "settings", icon: "gearshape", title: loc("help.settings.title"),
         sections: [
             .init(id: "set1", heading: loc("help.settings.s1.heading"), body: loc("help.settings.s1.body")),
+            .init(id: "set5", heading: loc("help.settings.s5.heading"), body: loc("help.settings.s5.body"),
+                  tip: loc("help.settings.s5.tip")),
+            .init(id: "set6", heading: loc("help.settings.s6.heading"), body: loc("help.settings.s6.body")),
             .init(id: "set2", heading: loc("help.settings.s2.heading"), body: loc("help.settings.s2.body")),
             .init(id: "set3", heading: loc("help.settings.s3.heading"), body: loc("help.settings.s3.body"),
                   warning: loc("help.settings.s3.warning")),
@@ -197,7 +200,7 @@ struct HelpView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        HStack(spacing: 0) {
+        HSplitView {
             // ── Sidebar ──────────────────────────────────────────
             VStack(spacing: 2) {
                 ForEach(HelpTopic.all) { topic in
@@ -214,10 +217,8 @@ struct HelpView: View {
                 Spacer()
             }
             .padding(.vertical, 12)
-            .frame(width: 180)
+            .frame(minWidth: 140, idealWidth: 180, maxWidth: 300)
             .background(.background)
-
-            Divider()
 
             // ── Content ──────────────────────────────────────────
             VStack(spacing: 0) {
@@ -253,10 +254,11 @@ struct HelpView: View {
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
-            .frame(maxWidth: .infinity)
+            .frame(minWidth: 300, maxWidth: .infinity)
             .background(Color.primary.opacity(0.02))
         }
-        .frame(width: 680, height: 480)
+        .frame(minWidth: 580, idealWidth: 680, maxWidth: .infinity,
+               minHeight: 380, idealHeight: 480, maxHeight: .infinity)
     }
 }
 

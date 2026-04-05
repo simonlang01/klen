@@ -115,6 +115,20 @@ private struct GeneralTab: View {
                             desc: LocalizedStringKey("settings.fontSize.desc")) {
                     FontScaleControl(scale: $appState.fontScale)
                 }
+
+                Divider().padding(.horizontal, 20)
+
+                // Font style
+                SettingsRow(icon: "textformat", title: LocalizedStringKey("settings.fontStyle.title"),
+                            desc: LocalizedStringKey("settings.fontStyle.desc")) {
+                    HStack(spacing: 8) {
+                        ForEach(FontStyleOption.allCases) { option in
+                            FontStyleSwatch(option: option, isSelected: appState.fontStyle == option) {
+                                appState.fontStyle = option
+                            }
+                        }
+                    }
+                }
             }
             .padding(.vertical, 8)
         }
@@ -664,6 +678,42 @@ private struct AccentColorSwatch: View {
     }
 }
 
+// MARK: – Font style swatch
+
+private struct FontStyleSwatch: View {
+    let option: FontStyleOption
+    let isSelected: Bool
+    let action: () -> Void
+    @Environment(\.appAccent) private var accent
+    @State private var hovering = false
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 5) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isSelected ? accent.opacity(0.15) : Color.primary.opacity(hovering ? 0.07 : 0.04))
+                        .frame(width: 52, height: 36)
+                    Text("Aa")
+                        .font(.system(size: 16, weight: isSelected ? .semibold : .regular, design: option.design))
+                        .foregroundStyle(isSelected ? accent : .primary)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(isSelected ? accent : Color.clear, lineWidth: 1.5)
+                )
+                Text(option.label)
+                    .scaledFont(size: 9)
+                    .foregroundStyle(isSelected ? accent : .secondary)
+            }
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+    }
+}
+
 // MARK: – Appearance card
 
 private struct AppearanceCard: View {
@@ -748,15 +798,6 @@ private struct FontScaleControl: View {
     @Binding var scale: Double
     @Environment(\.appAccent) private var accent
 
-    // Steps: 0.75, 0.85, 1.0, 1.15, 1.30, 1.50
-    private let steps: [Double] = [0.75, 0.85, 1.0, 1.15, 1.30, 1.50]
-    private let labels = ["XS", "S", "M", "L", "XL", "XXL"]
-
-    private var currentStep: Int {
-        // Find nearest step
-        steps.indices.min(by: { abs(steps[$0] - scale) < abs(steps[$1] - scale) }) ?? 2
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Preview
@@ -776,27 +817,13 @@ private struct FontScaleControl: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8))
 
-            // Step buttons
-            HStack(spacing: 0) {
-                ForEach(steps.indices, id: \.self) { i in
-                    let isSelected = currentStep == i
-                    Button {
-                        withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-                            scale = steps[i]
-                        }
-                    } label: {
-                        Text(labels[i])
-                            .scaledFont(size: 11, weight: isSelected ? .semibold : .regular)
-                            .foregroundStyle(isSelected ? .white : .primary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 5)
-                            .background(isSelected ? accent : Color.clear, in: RoundedRectangle(cornerRadius: 6))
-                    }
-                    .buttonStyle(.plain)
-                }
+            // Slider
+            HStack(spacing: 8) {
+                Text("A").scaledFont(size: 10).foregroundStyle(.secondary)
+                Slider(value: $scale, in: 0.75...1.50, step: 0.05)
+                    .tint(accent)
+                Text("A").scaledFont(size: 16).foregroundStyle(.secondary)
             }
-            .padding(3)
-            .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 9))
         }
     }
 }

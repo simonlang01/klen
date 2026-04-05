@@ -24,6 +24,41 @@ enum AccentColorOption: String, CaseIterable, Identifiable {
     var label: String { rawValue.capitalized }
 }
 
+// MARK: – Font style options
+
+enum FontStyleOption: String, CaseIterable, Identifiable {
+    case system, rounded, monospaced, serif
+
+    var id: String { rawValue }
+
+    var design: Font.Design {
+        switch self {
+        case .system:     return .default
+        case .rounded:    return .rounded
+        case .monospaced: return .monospaced
+        case .serif:      return .serif
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .system:     return "San Francisco"
+        case .rounded:    return "Rounded"
+        case .monospaced: return "Monospaced"
+        case .serif:      return "New York"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .system:     return "a"
+        case .rounded:    return "a.circle"
+        case .monospaced: return "chevron.left.forwardslash.chevron.right"
+        case .serif:      return "italic"
+        }
+    }
+}
+
 // MARK: – Environment keys
 
 struct AppAccentKey: EnvironmentKey {
@@ -34,6 +69,10 @@ struct AppFontScaleKey: EnvironmentKey {
     static let defaultValue: Double = 1.0
 }
 
+struct AppFontStyleKey: EnvironmentKey {
+    static let defaultValue: FontStyleOption = .system
+}
+
 extension EnvironmentValues {
     var appAccent: Color {
         get { self[AppAccentKey.self] }
@@ -42,6 +81,10 @@ extension EnvironmentValues {
     var appFontScale: Double {
         get { self[AppFontScaleKey.self] }
         set { self[AppFontScaleKey.self] = newValue }
+    }
+    var appFontStyle: FontStyleOption {
+        get { self[AppFontStyleKey.self] }
+        set { self[AppFontStyleKey.self] = newValue }
     }
 }
 
@@ -66,16 +109,17 @@ enum Theme {
 private struct ScaledFontModifier: ViewModifier {
     let size: CGFloat
     var weight: Font.Weight = .regular
-    var design: Font.Design = .default
+    var design: Font.Design? = nil
     @Environment(\.appFontScale) private var scale
+    @Environment(\.appFontStyle) private var style
 
     func body(content: Content) -> some View {
-        content.font(.system(size: size * scale, weight: weight, design: design))
+        content.font(.system(size: size * scale, weight: weight, design: design ?? style.design))
     }
 }
 
 extension View {
-    func scaledFont(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> some View {
+    func scaledFont(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design? = nil) -> some View {
         modifier(ScaledFontModifier(size: size, weight: weight, design: design))
     }
 }

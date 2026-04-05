@@ -73,15 +73,15 @@ final class QuickAddPanelController {
         panel.minSize = NSSize(width: 360, height: 80)
         panel.maxSize = NSSize(width: min(screenWidth * 0.85, 1200), height: 600)
 
-        let accentColor = appState?.accentOption.color ?? Theme.defaultAccent
         let colorScheme = appState?.appearanceMode.colorScheme
 
-        let fontScale = appState?.fontScale ?? 1.0
-
-        let view = QuickAddView(smartInputEnabled: appState?.smartInputEnabled ?? false) { [weak self] in self?.dismiss() }
+        let state = appState ?? AppState()
+        let view = QuickAddPanelRoot(onDismiss: { [weak self] in self?.dismiss() })
             .modelContainer(container)
-            .environment(\.appAccent, accentColor)
-            .environment(\.appFontScale, fontScale)
+            .environmentObject(state)
+            .environment(\.appAccent, state.accentOption.color)
+            .environment(\.appFontScale, state.fontScale)
+            .environment(\.appFontStyle, state.fontStyle)
             .preferredColorScheme(colorScheme)
 
         let host = NSHostingView(rootView: view)
@@ -126,5 +126,18 @@ final class QuickAddPanelController {
             NSEvent.removeMonitor(monitor)
             mouseMonitor = nil
         }
+    }
+}
+
+// Reactive wrapper so font/accent changes in AppState propagate into the panel
+private struct QuickAddPanelRoot: View {
+    @EnvironmentObject private var appState: AppState
+    let onDismiss: () -> Void
+
+    var body: some View {
+        QuickAddView(smartInputEnabled: appState.smartInputEnabled, onDismiss: onDismiss)
+            .environment(\.appAccent, appState.accentOption.color)
+            .environment(\.appFontScale, appState.fontScale)
+            .environment(\.appFontStyle, appState.fontStyle)
     }
 }
