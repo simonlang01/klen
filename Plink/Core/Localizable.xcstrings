@@ -7124,13 +7124,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Einträge werden nach 6 Monaten endgültig gelöscht."
+            "value" : "Einträge werden nach 6 Monaten ausgeblendet und nach 24 Monaten endgültig gelöscht."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Items are permanently deleted after 6 months."
+            "value" : "Items are hidden after 6 months and permanently deleted after 24 months."
           }
         }
       }

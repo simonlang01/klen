@@ -6,8 +6,16 @@ struct TrashView: View {
     @Environment(\.modelContext) private var ctx
     @Environment(\.appAccent) private var accent
 
-    private var deleted: [TodoItem]   { allItems.filter { $0.isDeleted }.sorted { $0.createdAt > $1.createdAt } }
-    private var completed: [TodoItem] { allItems.filter { $0.isCompleted && !$0.isDeleted }.sorted { $0.createdAt > $1.createdAt } }
+    private static var uiCutoff: Date { Calendar.current.date(byAdding: .month, value: -6, to: Date())! }
+
+    private var deleted: [TodoItem] {
+        allItems.filter { $0.isDeleted && ($0.deletedAt ?? $0.createdAt) >= Self.uiCutoff }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+    private var completed: [TodoItem] {
+        allItems.filter { $0.isCompleted && !$0.isDeleted && ($0.completedAt ?? $0.createdAt) >= Self.uiCutoff }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
 
     var body: some View {
         Group {

@@ -40,14 +40,18 @@ final class PersistenceController {
         purgeExpiredItems()
     }
 
-    /// Permanently deletes completed/deleted items older than 6 months.
+    /// Permanently deletes completed/deleted items older than 24 months.
     private func purgeExpiredItems() {
         let ctx = container.mainContext
-        let cutoff = Calendar.current.date(byAdding: .month, value: -6, to: Date())!
+        let cutoff = Calendar.current.date(byAdding: .month, value: -24, to: Date())!
         guard let items = try? ctx.fetch(FetchDescriptor<TodoItem>()) else { return }
-        for item in items where item.isDeleted || item.isCompleted {
-            let refDate = item.deletedAt ?? item.completedAt ?? item.createdAt
-            if refDate < cutoff { ctx.delete(item) }
+        for item in items {
+            let refDate: Date?
+            if item.isDeleted { refDate = item.deletedAt }
+            else if item.isCompleted { refDate = item.completedAt }
+            else { continue }
+            guard let refDate, refDate < cutoff else { continue }
+            ctx.delete(item)
         }
         do {
             try ctx.save()
