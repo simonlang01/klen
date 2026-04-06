@@ -25,6 +25,12 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
   CODE_SIGN_IDENTITY="-" \
   build | grep -E "error:|BUILD"
 
+echo "→ Re-signing app and frameworks..."
+find "$APP/Contents/Frameworks" -name "*.framework" -o -name "*.dylib" | while read f; do
+    codesign --force --deep --sign - "$f" 2>/dev/null
+done
+codesign --force --deep --sign - "$APP"
+
 BUILT_VERSION=$(defaults read "$APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null)
 if [ "$BUILT_VERSION" != "$VERSION" ]; then
     echo "✗ Version mismatch: built app is $BUILT_VERSION, expected $VERSION. Aborting."

@@ -8,7 +8,7 @@
 
         <item>
             <title>Klen 3.0</title>
-            <pubDate>Mon, 06 Apr 2026 00:25:00 +0000</pubDate>
+            <pubDate>Mon, 06 Apr 2026 00:30:23 +0000</pubDate>
             <sparkle:version>16</sparkle:version>
             <sparkle:shortVersionString>3.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
@@ -44,6 +44,7 @@ hr { border: none; border-top: 1px solid #e5e5e7; margin: 14px 0; }
 <ul>
 <li><span class="tag fix">Fix</span> Completed tasks found via search now always visible</li>
 <li><span class="tag fix">Fix</span> Monthly recurrence from Jan 31 no longer produces unexpected date</li>
+<li><span class="tag fix">Fix</span> Sparkle framework signing fixed for macOS 26 compatibility</li>
 </ul>
 <hr>
 <p class="slogan">Noted in a blink. Organized in Klen.</p>
@@ -51,9 +52,9 @@ hr { border: none; border-top: 1px solid #e5e5e7; margin: 14px 0; }
 ]]></sparkle:releaseNotes>
             <enclosure
                 url="https://github.com/simonlang01/klen/releases/download/v3.0/Klen-3.0.dmg"
-                length="3643644"
+                length="3642890"
                 type="application/octet-stream"
-                sparkle:edSignature="gn3/oelnauDiuyfoqv+IiObWMRoKUtywOWjjxIu4OdMwJDEIcFgyfKmgJn+CAhHota5heABZnm49NRdWq4MDBQ=="
+                sparkle:edSignature="kOLJ/YiiHSKwNRl9BdZ25AH+V7IMCUXPOIodtG7SWy25gZwOtZ9ZTD39ZId83YdO2jOiawUgNvUEd59gXziCAw=="
             />
         </item>
 
