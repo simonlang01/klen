@@ -22,7 +22,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
   -scheme Klen -configuration Release \
   -derivedDataPath "$DERIVED_DATA" \
   -clonedSourcePackagesDirPath "$REPO_ROOT/build/SourcePackages" \
-  CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGN_IDENTITY="-" \
   build | grep -E "error:|BUILD"
 
 BUILT_VERSION=$(defaults read "$APP/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null)

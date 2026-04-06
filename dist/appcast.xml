@@ -8,7 +8,7 @@
 
         <item>
             <title>Klen 3.0</title>
-            <pubDate>Mon, 06 Apr 2026 00:14:25 +0000</pubDate>
+            <pubDate>Mon, 06 Apr 2026 00:25:00 +0000</pubDate>
             <sparkle:version>16</sparkle:version>
             <sparkle:shortVersionString>3.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
@@ -31,37 +31,29 @@ hr { border: none; border-top: 1px solid #e5e5e7; margin: 14px 0; }
 </style></head><body>
 <h2>Klen 3.0</h2>
 <p class="sub">April 2026</p>
-<p class="intro"><strong>Plink is now Klen</strong> &mdash; <em>[kl&#603;n]</em>. Inspired by Scandinavian precision, Klen is the leanest way to capture tasks in the heat of the moment. This release marks the transition from prototype to a fully standalone app with its own identity.</p>
+<p class="intro"><strong>Plink is now Klen</strong> &mdash; <em>[kl&#603;n]</em>. Inspired by Scandinavian precision, Klen is the leanest way to capture tasks in the heat of the moment.</p>
 <h3>New</h3>
 <ul>
-<li><span class="tag new">New</span> <strong>New name &amp; identity</strong> &mdash; Plink is now Klen. Every string, menu item, and system reference updated.</li>
+<li><span class="tag new">New</span> <strong>New name &amp; identity</strong> &mdash; Every string, menu item, and system reference updated.</li>
 <li><span class="tag new">New</span> <strong>New app icon</strong> &mdash; Clean, modern, unmistakably Klen.</li>
-<li><span class="tag new">New</span> <strong>About section</strong> &mdash; Name, pronunciation [kl&#603;n], slogan and version in Settings &rarr; Advanced.</li>
+<li><span class="tag new">New</span> <strong>About section</strong> &mdash; Name, pronunciation, slogan and version in Settings &rarr; Advanced.</li>
 <li><span class="tag new">New</span> <strong>Reset Onboarding</strong> &mdash; Revisit the intro anytime from Settings &rarr; Advanced.</li>
-<li><span class="tag new">New</span> <strong>What&apos;s New sheet</strong> &mdash; A welcome sheet appears once on first launch of each new version.</li>
-</ul>
-<h3>Improved</h3>
-<ul>
-<li><span class="tag imp">Improved</span> App icon shown in Onboarding welcome screen</li>
-<li><span class="tag imp">Improved</span> Bundle ID updated to <code>com.simonlang.Klen</code></li>
-<li><span class="tag imp">Improved</span> Backups now use <code>.klenbackup</code> format</li>
-<li><span class="tag imp">Improved</span> All strings updated in English and German</li>
+<li><span class="tag new">New</span> <strong>What&apos;s New sheet</strong> &mdash; Appears once on first launch of each new version.</li>
 </ul>
 <h3>Bug Fixes</h3>
 <ul>
-<li><span class="tag fix">Fix</span> Completed tasks found via search now always visible regardless of 30-min window</li>
+<li><span class="tag fix">Fix</span> Completed tasks found via search now always visible</li>
 <li><span class="tag fix">Fix</span> Monthly recurrence from Jan 31 no longer produces unexpected date</li>
-<li><span class="tag fix">Fix</span> Soft-deleted tasks without deletion timestamp no longer risk premature purge</li>
 </ul>
 <hr>
 <p class="slogan">Noted in a blink. Organized in Klen.</p>
 </body></html>
-            ]]></sparkle:releaseNotes>
+]]></sparkle:releaseNotes>
             <enclosure
                 url="https://github.com/simonlang01/klen/releases/download/v3.0/Klen-3.0.dmg"
-                length="3618665"
+                length="3643644"
                 type="application/octet-stream"
-                sparkle:edSignature="ZjpUhezF4X9Pp/1OOYtNp6uzTMzPbtY/WtSxC90hS2RyMOGR/AdTNRdWCu5lmHEW3fKvgfQx0OKq8Ch9W/1mDQ=="
+                sparkle:edSignature="gn3/oelnauDiuyfoqv+IiObWMRoKUtywOWjjxIu4OdMwJDEIcFgyfKmgJn+CAhHota5heABZnm49NRdWq4MDBQ=="
             />
         </item>
 
